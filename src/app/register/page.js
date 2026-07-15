@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { signUp } from '@/lib/auth-client';
+import { signUpAndGetToken as signUp } from '@/lib/auth-client';
 import { toast } from 'react-toastify';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';

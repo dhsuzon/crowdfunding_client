@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { signIn } from '@/lib/auth-client';
+import { signInAndGetToken as signIn } from '@/lib/auth-client';
 import { toast } from 'react-toastify';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -41,7 +41,13 @@ export default function LoginPage() {
 
   const handleGoogle = async () => {
     try {
-      await signIn.social({ provider: 'google' });
+      const result = await signIn.social({ provider: 'google' });
+      if (result?.data) {
+        const { getApiToken } = await import('@/lib/auth-client');
+        await getApiToken();
+        toast.success('Google login successful!');
+        router.push('/dashboard');
+      }
     } catch (err) {
       toast.error(err?.message || 'Google login failed');
     }

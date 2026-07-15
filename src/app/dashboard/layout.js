@@ -11,6 +11,7 @@ import { signOut } from '@/lib/auth-client';
 export default function DashboardLayout({ children }) {
   const { data: session, isPending } = useSession();
   const router = useRouter();
+  const handleLogout = () => { localStorage.removeItem('better-auth-token'); signOut(); router.push('/'); };
 
   useEffect(() => {
     if (!isPending && !session) router.push('/login');
@@ -31,7 +32,7 @@ export default function DashboardLayout({ children }) {
             <NotificationPopover />
             <img src={session.user?.photoURL || `https://ui-avatars.com/api/?name=${session.user?.name}`} alt="" className="w-8 h-8 rounded-full object-cover" />
             <span className="hidden sm:inline text-sm text-gray-700">{session.user?.name}</span>
-            <button onClick={() => signOut()} className="text-red-500 hover:text-red-700"><HiLogout size={20} /></button>
+            <button onClick={handleLogout} className="text-red-500 hover:text-red-700"><HiLogout size={20} /></button>
           </div>
         </header>
         <main className="flex-1 p-4 md:p-8 overflow-y-auto">

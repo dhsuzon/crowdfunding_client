@@ -2,12 +2,14 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSession, signOut } from '@/lib/auth-client';
+import { useRouter } from 'next/navigation';
 import { HiHome, HiCollection, HiCash, HiCreditCard, HiUserGroup, HiFlag, HiPlusCircle, HiDocumentReport } from 'react-icons/hi';
 import { FiLogOut } from 'react-icons/fi';
 
 export default function Sidebar() {
   const { data: session } = useSession();
   const pathname = usePathname();
+  const router = useRouter();
   const user = session?.user;
 
   const supporterLinks = [
@@ -64,7 +66,7 @@ export default function Sidebar() {
             </Link>
           );
         })}
-        <button onClick={() => signOut()} className="flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 w-full">
+        <button onClick={() => { localStorage.removeItem('better-auth-token'); signOut(); router.push('/'); }} className="flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 w-full">
           <FiLogOut size={20} />
           <span>Logout</span>
         </button>
