@@ -6,7 +6,8 @@ import { signUpAndGetToken as signUp } from '@/lib/auth-client';
 import { toast } from 'react-toastify';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { Button, Input, TextField, Label, FieldError } from '@heroui/react';
+import { Button, Input, TextField, Label, FieldError, Select, SelectTrigger, SelectValue, SelectPopover } from '@heroui/react';
+import { ListBox, ListBoxItem } from 'react-aria-components';
 import { HiEye, HiEyeOff } from 'react-icons/hi';
 
 export default function RegisterPage() {
@@ -77,13 +78,20 @@ export default function RegisterPage() {
               </div>
               {errors.password && <FieldError className="text-red-500 text-sm">{errors.password}</FieldError>}
             </TextField>
-            <TextField value={form.role} onChange={(v) => setForm({ ...form, role: v })} className="flex flex-col gap-1">
+            <div className="flex flex-col gap-1">
               <Label className="text-sm font-medium text-gray-700">I want to join as</Label>
-              <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none">
-                <option value="supporter">Supporter (Get 50 Credits)</option>
-                <option value="creator">Creator (Get 20 Credits)</option>
-              </select>
-            </TextField>
+              <Select selectedKey={form.role} onSelectionChange={(v) => setForm({ ...form, role: v })}>
+                <SelectTrigger className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none flex items-center justify-between">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectPopover>
+                  <ListBox className="bg-white border rounded-lg shadow-lg p-1">
+                    <ListBoxItem id="supporter" className="px-4 py-2 text-sm hover:bg-indigo-50 rounded cursor-pointer">Supporter (Get 50 Credits)</ListBoxItem>
+                    <ListBoxItem id="creator" className="px-4 py-2 text-sm hover:bg-indigo-50 rounded cursor-pointer">Creator (Get 20 Credits)</ListBoxItem>
+                  </ListBox>
+                </SelectPopover>
+              </Select>
+            </div>
             <Button type="submit" isDisabled={loading} className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 font-medium disabled:opacity-50">
               {loading ? 'Creating account...' : 'Create Account'}
             </Button>
