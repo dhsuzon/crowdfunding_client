@@ -7,6 +7,7 @@ import { useSession } from '@/lib/auth-client';
 import { apiFetch } from '@/lib/api';
 import { toast } from 'react-toastify';
 import { format } from 'date-fns';
+import { Button, Card, CardContent, CardHeader, CardTitle } from '@heroui/react';
 
 export default function CampaignDetails() {
   const { id } = useParams();
@@ -57,11 +58,11 @@ export default function CampaignDetails() {
       <Navbar />
       <div className="min-h-screen bg-gray-50 pt-20 pb-12">
         <div className="max-w-5xl mx-auto px-4">
-          <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+          <Card className="overflow-hidden">
             <div className="h-64 md:h-80 bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center">
               {campaign.imageURL ? <img src={campaign.imageURL} alt={campaign.title} className="w-full h-full object-cover" /> : <span className="text-6xl">🎯</span>}
             </div>
-            <div className="p-6 md:p-8">
+            <CardContent className="p-6 md:p-8">
               <div className="flex flex-wrap items-center gap-2 mb-4">
                 <span className="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm">{campaign.category}</span>
                 <span className={`px-3 py-1 rounded-full text-sm ${campaign.status === 'approved' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>{campaign.status}</span>
@@ -70,22 +71,22 @@ export default function CampaignDetails() {
               <p className="text-gray-500 mb-2">by {campaign.creatorName}</p>
               <p className="text-gray-700 mb-6 leading-relaxed">{campaign.story}</p>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                <div className="bg-gray-50 p-4 rounded-lg text-center">
+                <Card className="bg-gray-50 p-4 text-center shadow-none">
                   <p className="text-2xl font-bold text-indigo-600">${campaign.amountRaised}</p>
                   <p className="text-sm text-gray-500">Raised</p>
-                </div>
-                <div className="bg-gray-50 p-4 rounded-lg text-center">
+                </Card>
+                <Card className="bg-gray-50 p-4 text-center shadow-none">
                   <p className="text-2xl font-bold text-gray-900">${campaign.fundingGoal}</p>
                   <p className="text-sm text-gray-500">Goal</p>
-                </div>
-                <div className="bg-gray-50 p-4 rounded-lg text-center">
+                </Card>
+                <Card className="bg-gray-50 p-4 text-center shadow-none">
                   <p className="text-2xl font-bold text-gray-900">{campaign.minimumContribution}</p>
                   <p className="text-sm text-gray-500">Min Contribution</p>
-                </div>
-                <div className="bg-gray-50 p-4 rounded-lg text-center">
+                </Card>
+                <Card className="bg-gray-50 p-4 text-center shadow-none">
                   <p className="text-sm font-bold text-gray-900">{format(new Date(campaign.deadline), 'MMM dd, yyyy')}</p>
                   <p className="text-sm text-gray-500">Deadline</p>
-                </div>
+                </Card>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-3 mb-2">
                 <div className="bg-indigo-600 h-3 rounded-full" style={{ width: `${Math.min((campaign.amountRaised / campaign.fundingGoal) * 100, 100)}%` }}></div>
@@ -105,15 +106,14 @@ export default function CampaignDetails() {
                       className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" />
                     <textarea value={message} onChange={(e) => setMessage(e.target.value)} placeholder="Leave a message (optional)" rows={3}
                       className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" />
-                    <button type="submit" disabled={contributing}
-                      className="bg-indigo-600 text-white px-8 py-3 rounded-lg hover:bg-indigo-700 transition font-medium disabled:opacity-50">
+                    <Button type="submit" isDisabled={contributing} className="bg-indigo-600 text-white px-8 py-3 rounded-lg hover:bg-indigo-700 font-medium disabled:opacity-50">
                       {contributing ? 'Processing...' : 'Contribute Credits'}
-                    </button>
+                    </Button>
                   </div>
                 </form>
               )}
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
       <Footer />

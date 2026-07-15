@@ -5,6 +5,7 @@ import { apiFetch } from '@/lib/api';
 import { format } from 'date-fns';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { Button, Card, CardContent } from '@heroui/react';
 
 export default function CampaignsPage() {
   const [campaigns, setCampaigns] = useState([]);
@@ -48,11 +49,11 @@ export default function CampaignsPage() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {campaigns.map(c => (
-                <div key={c._id} className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition">
+                <Card key={c._id} className="overflow-hidden hover:shadow-md transition">
                   <div className="h-40 bg-gradient-to-br from-indigo-50 to-purple-50 flex items-center justify-center">
                     {c.imageURL ? <img src={c.imageURL} alt={c.title} className="w-full h-full object-cover" /> : <span className="text-3xl">🎯</span>}
                   </div>
-                  <div className="p-5">
+                  <CardContent className="p-5">
                     <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full">{c.category}</span>
                     <h3 className="font-semibold text-gray-900 mt-2 mb-1">{c.title}</h3>
                     <p className="text-sm text-gray-500 mb-2">by {c.creatorName}</p>
@@ -62,8 +63,8 @@ export default function CampaignsPage() {
                       <span className="text-sm text-gray-500">Goal: ${c.fundingGoal}</span>
                     </div>
                     <Link href={`/campaigns/${c._id}`} className="mt-3 block text-center bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition text-sm">View Details</Link>
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
               ))}
             </div>
           )}
