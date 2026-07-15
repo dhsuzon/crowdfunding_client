@@ -54,7 +54,7 @@ export default function Navbar() {
                 <Link href="/register" className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition">Register</Link>
               </>
             )}
-            <a href="https://github.com/yourusername/crowdfunding_client" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-indigo-600 text-sm border px-3 py-1 rounded-full">
+            <a href="https://github.com/dhsuzon/crowdfunding_client" target="_blank" rel="noopener noreferrer" className="text-gray-500 hover:text-indigo-600 text-sm border px-3 py-1 rounded-full">
               Join as Developer
             </a>
           </div>
