@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import axios from '@/lib/axios';
+import { apiFetch } from '@/lib/api';
 import Link from 'next/link';
 
 export default function TopCampaigns() {
@@ -8,9 +8,9 @@ export default function TopCampaigns() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios.get('/campaigns/top-funded')
-      .then(res => setCampaigns(res.data))
-      .catch(() => { })
+    apiFetch('/campaigns/top-funded')
+      .then(res => setCampaigns(res))
+      .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 

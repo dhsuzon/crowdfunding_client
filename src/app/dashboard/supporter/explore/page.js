@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import axios from '@/lib/axios';
+import { apiFetch } from '@/lib/api';
 import { format } from 'date-fns';
 
 export default function ExploreCampaigns() {
@@ -14,9 +14,9 @@ export default function ExploreCampaigns() {
     const params = new URLSearchParams();
     if (search) params.set('search', search);
     if (category) params.set('category', category);
-    axios.get(`/campaigns?${params}`)
-      .then(res => setCampaigns(res.data))
-      .catch(() => { })
+    apiFetch(`/campaigns?${params}`)
+      .then(res => setCampaigns(res))
+      .catch(() => {})
       .finally(() => setLoading(false));
   }, [search, category]);
 

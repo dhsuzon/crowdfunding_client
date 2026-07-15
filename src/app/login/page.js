@@ -2,19 +2,16 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useAuth } from '@/context/AuthContext';
+import { signIn } from '@/lib/auth-client';
 import { toast } from 'react-toastify';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
 export default function LoginPage() {
-  const { login, googleLogin, user } = useAuth();
   const router = useRouter();
   const [form, setForm] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
-
-  if (user) { router.push('/dashboard'); return null; }
 
   const validate = () => {
     const errs = {};
@@ -30,17 +27,24 @@ export default function LoginPage() {
     if (!validate()) return;
     setLoading(true);
     try {
-      await login(form);
-      router.push('/dashboard');
+      const { data } = await signIn.email({ email: form.email, password: form.password });
+      if (data) {
+        toast.success('Login successful!');
+        router.push('/dashboard');
+      }
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Login failed');
+      toast.error(err?.message || 'Login failed');
     } finally {
       setLoading(false);
     }
   };
 
   const handleGoogle = async () => {
-    toast.info('Google Sign-In coming soon. Use email/password for now.');
+    try {
+      await signIn.social({ provider: 'google' });
+    } catch (err) {
+      toast.error(err?.message || 'Google login failed');
+    }
   };
 
   return (

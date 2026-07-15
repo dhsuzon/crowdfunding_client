@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import axios from '@/lib/axios';
+import { apiFetch } from '@/lib/api';
 import { HiUserGroup, HiUserAdd, HiCash, HiCreditCard } from 'react-icons/hi';
 
 export default function AdminHome() {
@@ -8,8 +8,8 @@ export default function AdminHome() {
   const [payments, setPayments] = useState([]);
 
   useEffect(() => {
-    axios.get('/users').then(res => setUsers(res.data)).catch(() => { });
-    axios.get('/payments/admin/all').then(res => setPayments(res.data)).catch(() => { });
+    apiFetch('/users').then(res => setUsers(res)).catch(() => {});
+    apiFetch('/payments/admin/all').then(res => setPayments(res)).catch(() => {});
   }, []);
 
   const supporters = users.filter(u => u.role === 'supporter').length;

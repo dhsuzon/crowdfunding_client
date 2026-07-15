@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import axios from '@/lib/axios';
+import { apiFetch } from '@/lib/api';
 import { toast } from 'react-toastify';
 import { format } from 'date-fns';
 
@@ -9,20 +9,20 @@ export default function WithdrawalRequests() {
 
   const fetchData = async () => {
     try {
-      const res = await axios.get('/withdrawals/pending');
-      setWithdrawals(res.data);
-    } catch (err) { }
+      const res = await apiFetch('/withdrawals/pending');
+      setWithdrawals(res);
+    } catch (err) {}
   };
 
   useEffect(() => { fetchData(); }, []);
 
   const handleApprove = async (id) => {
     try {
-      await axios.patch(`/withdrawals/${id}/approve`);
+      await apiFetch(`/withdrawals/${id}/approve`, { method: 'PATCH' });
       toast.success('Withdrawal approved');
       fetchData();
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed');
+      toast.error(err?.message || 'Failed');
     }
   };
 

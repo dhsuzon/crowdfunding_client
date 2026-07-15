@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import axios from '@/lib/axios';
+import { apiFetch } from '@/lib/api';
 import { toast } from 'react-toastify';
 
 export default function AddCampaign() {
@@ -19,11 +19,14 @@ export default function AddCampaign() {
     }
     setLoading(true);
     try {
-      await axios.post('/campaigns', { ...form, fundingGoal: Number(form.fundingGoal), minimumContribution: Number(form.minimumContribution) });
+      await apiFetch('/campaigns', {
+        method: 'POST',
+        body: JSON.stringify({ ...form, fundingGoal: Number(form.fundingGoal), minimumContribution: Number(form.minimumContribution) }),
+      });
       toast.success('Campaign created! Waiting for admin approval.');
       router.push('/dashboard/creator/my-campaigns');
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to create campaign');
+      toast.error(err?.message || 'Failed to create campaign');
     } finally {
       setLoading(false);
     }

@@ -1,6 +1,5 @@
 import { Poppins } from 'next/font/google';
 import './globals.css';
-import { AuthProvider } from '@/context/AuthContext';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -19,10 +18,8 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" className={poppins.variable}>
       <body className="font-[family-name:var(--font-poppins)]">
-        <AuthProvider>
-          {children}
-          <ToastContainer position="top-right" autoClose={3000} theme="light" />
-        </AuthProvider>
+        {children}
+        <ToastContainer position="top-right" autoClose={3000} theme="light" />
       </body>
     </html>
   );

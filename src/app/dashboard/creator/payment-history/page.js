@@ -1,16 +1,18 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/context/AuthContext';
-import axios from '@/lib/axios';
+import { useSession } from '@/lib/auth-client';
+import { apiFetch } from '@/lib/api';
 import { format } from 'date-fns';
 
 export default function CreatorPaymentHistory() {
-  const { user } = useAuth();
+  const { data: session } = useSession();
   const [withdrawals, setWithdrawals] = useState([]);
 
   useEffect(() => {
-    axios.get(`/withdrawals/my/${user?.email}`).then(res => setWithdrawals(res.data)).catch(() => { });
-  }, [user?.email]);
+    if (session?.user?.email) {
+      apiFetch(`/withdrawals/my/${session.user.email}`).then(res => setWithdrawals(res)).catch(() => {});
+    }
+  }, [session?.user?.email]);
 
   return (
     <div>

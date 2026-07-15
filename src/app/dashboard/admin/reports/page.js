@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import axios from '@/lib/axios';
+import { apiFetch } from '@/lib/api';
 import { toast } from 'react-toastify';
 import { format } from 'date-fns';
 
@@ -9,16 +9,16 @@ export default function Reports() {
 
   const fetchData = async () => {
     try {
-      const res = await axios.get('/campaigns/reported');
-      setReported(res.data);
-    } catch (err) { }
+      const res = await apiFetch('/campaigns/reported');
+      setReported(res);
+    } catch (err) {}
   };
 
   useEffect(() => { fetchData(); }, []);
 
   const handleSuspend = async (id) => {
     try {
-      await axios.patch(`/campaigns/${id}/reject`);
+      await apiFetch(`/campaigns/${id}/reject`, { method: 'PATCH' });
       toast.success('Campaign suspended');
       fetchData();
     } catch (err) { toast.error('Failed'); }
@@ -27,7 +27,7 @@ export default function Reports() {
   const handleDelete = async (id) => {
     if (!confirm('Delete this reported campaign?')) return;
     try {
-      await axios.delete(`/campaigns/${id}/admin-delete`);
+      await apiFetch(`/campaigns/${id}/admin-delete`, { method: 'DELETE' });
       toast.success('Campaign deleted');
       fetchData();
     } catch (err) { toast.error('Failed'); }

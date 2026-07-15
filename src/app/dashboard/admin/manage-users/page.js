@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import axios from '@/lib/axios';
+import { apiFetch } from '@/lib/api';
 import { toast } from 'react-toastify';
 
 export default function ManageUsers() {
@@ -8,31 +8,34 @@ export default function ManageUsers() {
 
   const fetchUsers = async () => {
     try {
-      const res = await axios.get('/users');
-      setUsers(res.data);
-    } catch (err) { }
+      const res = await apiFetch('/users');
+      setUsers(res);
+    } catch (err) {}
   };
 
   useEffect(() => { fetchUsers(); }, []);
 
   const handleRoleChange = async (id, role) => {
     try {
-      await axios.patch(`/users/${id}/role`, { role });
+      await apiFetch(`/users/${id}/role`, {
+        method: 'PATCH',
+        body: JSON.stringify({ role }),
+      });
       toast.success('Role updated');
       fetchUsers();
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to update role');
+      toast.error(err?.message || 'Failed to update role');
     }
   };
 
   const handleDelete = async (id) => {
     if (!confirm('Delete this user? This cannot be undone.')) return;
     try {
-      await axios.delete(`/users/${id}`);
+      await apiFetch(`/users/${id}`, { method: 'DELETE' });
       toast.success('User deleted');
       fetchUsers();
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to delete user');
+      toast.error(err?.message || 'Failed to delete user');
     }
   };
 

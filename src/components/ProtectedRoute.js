@@ -1,23 +1,23 @@
 'use client';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/context/AuthContext';
+import { useSession } from '@/lib/auth-client';
 
 export default function ProtectedRoute({ children, roles }) {
-  const { user, loading } = useAuth();
+  const { data: session, isPending } = useSession();
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading) {
-      if (!user) {
+    if (!isPending) {
+      if (!session) {
         router.push('/login');
-      } else if (roles && !roles.includes(user.role)) {
+      } else if (roles && !roles.includes(session.user.role)) {
         router.push('/dashboard');
       }
     }
-  }, [user, loading, router, roles]);
+  }, [session, isPending, router, roles]);
 
-  if (loading) {
+  if (isPending) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-indigo-600"></div>
@@ -25,8 +25,8 @@ export default function ProtectedRoute({ children, roles }) {
     );
   }
 
-  if (!user) return null;
-  if (roles && !roles.includes(user.role)) return null;
+  if (!session) return null;
+  if (roles && !roles.includes(session.user.role)) return null;
 
   return children;
 }

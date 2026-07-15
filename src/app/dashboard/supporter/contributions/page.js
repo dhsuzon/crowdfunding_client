@@ -1,17 +1,17 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/context/AuthContext';
-import axios from '@/lib/axios';
+import { useSession } from '@/lib/auth-client';
+import { apiFetch } from '@/lib/api';
 import { format } from 'date-fns';
 
 export default function MyContributions() {
-  const { user } = useAuth();
+  const { data: session } = useSession();
   const [data, setData] = useState({ contributions: [], total: 0, page: 1, totalPages: 1 });
 
   useEffect(() => {
-    axios.get(`/contributions/my?page=${data.page}&limit=10`)
-      .then(res => setData(res.data))
-      .catch(() => { });
+    apiFetch(`/contributions/my?page=${data.page}&limit=10`)
+      .then(res => setData(res))
+      .catch(() => {});
   }, [data.page]);
 
   return (

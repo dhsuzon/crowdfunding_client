@@ -1,37 +1,42 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/context/AuthContext';
-import axios from '@/lib/axios';
+import { useSession } from '@/lib/auth-client';
+import { apiFetch } from '@/lib/api';
 import { toast } from 'react-toastify';
 import { format } from 'date-fns';
 
 export default function Withdrawals() {
-  const { user } = useAuth();
+  const { data: session } = useSession();
   const [withdrawals, setWithdrawals] = useState([]);
   const [form, setForm] = useState({ withdrawalCredits: '', paymentSystem: 'Stripe', accountNumber: '' });
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    axios.get(`/withdrawals/my/${user?.email}`)
-      .then(res => setWithdrawals(res.data))
-      .catch(() => { });
-  }, [user?.email]);
+    if (session?.user?.email) {
+      apiFetch(`/withdrawals/my/${session.user.email}`)
+        .then(res => setWithdrawals(res))
+        .catch(() => {});
+    }
+  }, [session?.user?.email]);
 
   const withdrawalAmount = form.withdrawalCredits ? Number(form.withdrawalCredits) / 20 : 0;
-  const canWithdraw = Number(form.withdrawalCredits) >= 200 && Number(form.withdrawalCredits) <= (user?.totalRaisedCredits || 0);
+  const canWithdraw = Number(form.withdrawalCredits) >= 200 && Number(form.withdrawalCredits) <= (session?.user?.totalRaisedCredits || 0);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!canWithdraw) { toast.error('Invalid withdrawal amount'); return; }
     setLoading(true);
     try {
-      await axios.post('/withdrawals', form);
+      await apiFetch('/withdrawals', {
+        method: 'POST',
+        body: JSON.stringify(form),
+      });
       toast.success('Withdrawal request submitted!');
       setForm({ withdrawalCredits: '', paymentSystem: 'Stripe', accountNumber: '' });
-      const res = await axios.get(`/withdrawals/my/${user?.email}`);
-      setWithdrawals(res.data);
+      const res = await apiFetch(`/withdrawals/my/${session?.user?.email}`);
+      setWithdrawals(res);
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Withdrawal failed');
+      toast.error(err?.message || 'Withdrawal failed');
     } finally {
       setLoading(false);
     }
@@ -43,9 +48,9 @@ export default function Withdrawals() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <div className="bg-white p-6 rounded-xl shadow-sm">
           <h2 className="text-lg font-semibold text-gray-900 mb-2">Your Earnings</h2>
-          <p className="text-3xl font-bold text-indigo-600">{user?.totalRaisedCredits || 0}</p>
+          <p className="text-3xl font-bold text-indigo-600">{session?.user?.totalRaisedCredits || 0}</p>
           <p className="text-sm text-gray-500">Total Raised Credits</p>
-          <p className="text-2xl font-bold text-green-600 mt-2">${((user?.totalRaisedCredits || 0) / 20).toFixed(2)}</p>
+          <p className="text-2xl font-bold text-green-600 mt-2">${((session?.user?.totalRaisedCredits || 0) / 20).toFixed(2)}</p>
           <p className="text-sm text-gray-500">Withdrawal Amount (20 credits = $1)</p>
         </div>
         <div className="bg-white p-6 rounded-xl shadow-sm">

@@ -1,7 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { useAuth } from '@/context/AuthContext';
-import axios from '@/lib/axios';
+import { useSession } from '@/lib/auth-client';
 import { toast } from 'react-toastify';
 
 const packages = [
@@ -12,24 +11,25 @@ const packages = [
 ];
 
 export default function PurchaseCredit() {
-  const { user, updateUserCredits } = useAuth();
+  const { data: session } = useSession();
   const [loading, setLoading] = useState(null);
 
   const handlePurchase = async (pkg) => {
     setLoading(pkg.credits);
     try {
-      const { data } = await axios.post('/payments/create-payment-intent', { credits: pkg.credits });
-      const stripe = (await import('@stripe/stripe-js')).loadStripe(process.env.NEXT_PUBLIC_STRIPE_KEY || 'pk_test_placeholder');
-      // Fallback: directly confirm if Stripe not available
-      await axios.post('/payments/confirm', {
-        paymentIntentId: 'pi_dummy_' + Date.now(),
-        credits: pkg.credits,
-        amount: pkg.price,
+      const res = await fetch('/api/stripe/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ credits: pkg.credits, price: pkg.price }),
       });
-      toast.success(`Successfully purchased ${pkg.credits} credits for $${pkg.price}!`);
-      if (user) updateUserCredits((user.credits || 0) + pkg.credits);
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        toast.error('Failed to create checkout session');
+      }
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Payment failed');
+      toast.error('Payment failed');
     } finally {
       setLoading(null);
     }
@@ -54,7 +54,7 @@ export default function PurchaseCredit() {
         ))}
       </div>
       <div className="mt-8 bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
-        <p className="text-sm text-yellow-700"><strong>Note:</strong> Stripe payment is configured in test mode. Purchases are processed as demo transactions.</p>
+        <p className="text-sm text-yellow-700"><strong>Note:</strong> Stripe payment is in test mode. You will be redirected to Stripe Checkout.</p>
       </div>
     </div>
   );

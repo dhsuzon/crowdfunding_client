@@ -2,19 +2,16 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useAuth } from '@/context/AuthContext';
+import { signUp } from '@/lib/auth-client';
 import { toast } from 'react-toastify';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
 export default function RegisterPage() {
-  const { register, user } = useAuth();
   const router = useRouter();
   const [form, setForm] = useState({ name: '', email: '', photoURL: '', password: '', role: 'supporter' });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
-
-  if (user) { router.push('/dashboard'); return null; }
 
   const validate = () => {
     const errs = {};
@@ -32,10 +29,19 @@ export default function RegisterPage() {
     if (!validate()) return;
     setLoading(true);
     try {
-      await register(form);
-      router.push('/dashboard');
+      const { data } = await signUp.email({
+        name: form.name,
+        email: form.email,
+        password: form.password,
+        role: form.role,
+        photoURL: form.photoURL,
+      });
+      if (data) {
+        toast.success('Registration successful!');
+        router.push('/dashboard');
+      }
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Registration failed');
+      toast.error(err?.message || 'Registration failed');
     } finally {
       setLoading(false);
     }

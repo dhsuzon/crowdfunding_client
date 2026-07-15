@@ -1,13 +1,14 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useAuth } from '@/context/AuthContext';
-import { HiHome, HiCollection, HiCash, HiCreditCard, HiUserGroup, HiFlag, HiPlusCircle, HiDocumentReport, HiOutlineUserCircle } from 'react-icons/hi';
+import { useSession, signOut } from '@/lib/auth-client';
+import { HiHome, HiCollection, HiCash, HiCreditCard, HiUserGroup, HiFlag, HiPlusCircle, HiDocumentReport } from 'react-icons/hi';
 import { FiLogOut } from 'react-icons/fi';
 
 export default function Sidebar() {
-  const { user, logout } = useAuth();
+  const { data: session } = useSession();
   const pathname = usePathname();
+  const user = session?.user;
 
   const supporterLinks = [
     { href: '/dashboard/supporter', label: 'Home', icon: HiHome },
@@ -63,7 +64,7 @@ export default function Sidebar() {
             </Link>
           );
         })}
-        <button onClick={logout} className="flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 w-full">
+        <button onClick={() => signOut()} className="flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 w-full">
           <FiLogOut size={20} />
           <span>Logout</span>
         </button>

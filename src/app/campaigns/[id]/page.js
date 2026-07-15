@@ -3,14 +3,14 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { useAuth } from '@/context/AuthContext';
+import { useSession } from '@/lib/auth-client';
+import { apiFetch } from '@/lib/api';
 import { toast } from 'react-toastify';
-import axios from '@/lib/axios';
 import { format } from 'date-fns';
 
 export default function CampaignDetails() {
   const { id } = useParams();
-  const { user } = useAuth();
+  const { data: session } = useSession();
   const [campaign, setCampaign] = useState(null);
   const [amount, setAmount] = useState('');
   const [message, setMessage] = useState('');
@@ -18,29 +18,32 @@ export default function CampaignDetails() {
   const [contributing, setContributing] = useState(false);
 
   useEffect(() => {
-    axios.get(`/campaigns/${id}`)
-      .then(res => setCampaign(res.data))
+    apiFetch(`/campaigns/${id}`)
+      .then(res => setCampaign(res))
       .catch(() => toast.error('Failed to load campaign'))
       .finally(() => setLoading(false));
   }, [id]);
 
   const handleContribute = async (e) => {
     e.preventDefault();
-    if (!user) { toast.error('Please login to contribute'); return; }
+    if (!session) { toast.error('Please login to contribute'); return; }
     if (!amount || Number(amount) <= 0) { toast.error('Enter a valid amount'); return; }
     if (Number(amount) < campaign.minimumContribution) { toast.error(`Minimum contribution is ${campaign.minimumContribution} credits`); return; }
     setContributing(true);
     try {
-      await axios.post('/contributions', {
-        campaignId: campaign._id, campaignTitle: campaign.title,
-        contributionAmount: Number(amount), message,
-        creatorName: campaign.creatorName, creatorEmail: campaign.creatorEmail
+      await apiFetch('/contributions', {
+        method: 'POST',
+        body: JSON.stringify({
+          campaignId: campaign._id, campaignTitle: campaign.title,
+          contributionAmount: Number(amount), message,
+          creatorName: campaign.creatorName, creatorEmail: campaign.creatorEmail
+        }),
       });
       toast.success('Contribution submitted! Pending approval.');
       setAmount('');
       setMessage('');
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Contribution failed');
+      toast.error(err?.message || 'Contribution failed');
     } finally {
       setContributing(false);
     }
@@ -104,7 +107,7 @@ export default function CampaignDetails() {
                       className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none" />
                     <button type="submit" disabled={contributing}
                       className="bg-indigo-600 text-white px-8 py-3 rounded-lg hover:bg-indigo-700 transition font-medium disabled:opacity-50">
-                      {contributing ? 'Processing...' : `Contribute Credits`}
+                      {contributing ? 'Processing...' : 'Contribute Credits'}
                     </button>
                   </div>
                 </form>

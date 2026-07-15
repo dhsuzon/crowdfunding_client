@@ -1,22 +1,22 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import { HiBell } from 'react-icons/hi';
-import { useAuth } from '@/context/AuthContext';
-import axios from '@/lib/axios';
+import { useSession } from '@/lib/auth-client';
+import { apiFetch } from '@/lib/api';
 import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
 
 export default function NotificationPopover() {
-  const { user } = useAuth();
+  const { data: session } = useSession();
   const [notifications, setNotifications] = useState([]);
   const [open, setOpen] = useState(false);
   const ref = useRef();
 
   useEffect(() => {
-    if (user?.email) {
-      axios.get(`/notifications/${user.email}`).then(res => setNotifications(res.data)).catch(() => { });
+    if (session?.user?.email) {
+      apiFetch(`/notifications/${session.user.email}`).then(res => setNotifications(res)).catch(() => {});
     }
-  }, [user?.email]);
+  }, [session?.user?.email]);
 
   useEffect(() => {
     const handleClick = (e) => {

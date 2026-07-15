@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import axios from '@/lib/axios';
+import { apiFetch } from '@/lib/api';
 import { toast } from 'react-toastify';
 import { format } from 'date-fns';
 import { FaEdit, FaTrash } from 'react-icons/fa';
@@ -12,9 +12,9 @@ export default function MyCampaigns() {
 
   const fetchCampaigns = async () => {
     try {
-      const res = await axios.get('/campaigns/my');
-      setCampaigns(res.data);
-    } catch (err) { }
+      const res = await apiFetch('/campaigns/my');
+      setCampaigns(res);
+    } catch (err) {}
   };
 
   useEffect(() => { fetchCampaigns(); }, []);
@@ -22,22 +22,25 @@ export default function MyCampaigns() {
   const handleDelete = async (id) => {
     if (!confirm('Delete this campaign? Approved supporters will be refunded.')) return;
     try {
-      await axios.delete(`/campaigns/${id}`);
+      await apiFetch(`/campaigns/${id}`, { method: 'DELETE' });
       toast.success('Campaign deleted. Supporters refunded.');
       fetchCampaigns();
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Delete failed');
+      toast.error(err?.message || 'Delete failed');
     }
   };
 
   const handleUpdate = async (id) => {
     try {
-      await axios.patch(`/campaigns/${id}`, editForm);
+      await apiFetch(`/campaigns/${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify(editForm),
+      });
       toast.success('Campaign updated');
       setEditing(null);
       fetchCampaigns();
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Update failed');
+      toast.error(err?.message || 'Update failed');
     }
   };
 

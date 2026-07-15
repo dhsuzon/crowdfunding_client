@@ -1,13 +1,13 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/context/AuthContext';
-import axios from '@/lib/axios';
+import { useSession } from '@/lib/auth-client';
+import { apiFetch } from '@/lib/api';
 import { toast } from 'react-toastify';
 import { format } from 'date-fns';
 import { HiCash, HiCheckCircle, HiClock, HiEye } from 'react-icons/hi';
 
 export default function CreatorHome() {
-  const { user } = useAuth();
+  const { data: session } = useSession();
   const [campaigns, setCampaigns] = useState([]);
   const [pendingContributions, setPendingContributions] = useState([]);
   const [selectedContribution, setSelectedContribution] = useState(null);
@@ -16,39 +16,39 @@ export default function CreatorHome() {
   const fetchData = async () => {
     try {
       const [campRes, contribRes] = await Promise.all([
-        axios.get('/campaigns/my'),
-        axios.get(`/contributions/pending/${user?.email}`)
+        apiFetch('/campaigns/my'),
+        apiFetch(`/contributions/pending/${session?.user?.email}`)
       ]);
-      setCampaigns(campRes.data);
-      setPendingContributions(contribRes.data);
+      setCampaigns(campRes);
+      setPendingContributions(contribRes);
     } catch (err) {
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { if (user) fetchData(); }, [user]);
+  useEffect(() => { if (session?.user) fetchData(); }, [session?.user]);
 
   const activeCampaigns = campaigns.filter(c => new Date(c.deadline) > new Date()).length;
   const totalRaised = campaigns.reduce((sum, c) => sum + c.amountRaised, 0);
 
   const handleApprove = async (id) => {
     try {
-      await axios.patch(`/contributions/${id}/approve`);
+      await apiFetch(`/contributions/${id}/approve`, { method: 'PATCH' });
       toast.success('Contribution approved!');
       fetchData();
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to approve');
+      toast.error(err?.message || 'Failed to approve');
     }
   };
 
   const handleReject = async (id) => {
     try {
-      await axios.patch(`/contributions/${id}/reject`);
+      await apiFetch(`/contributions/${id}/reject`, { method: 'PATCH' });
       toast.success('Contribution rejected. Refunded.');
       fetchData();
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to reject');
+      toast.error(err?.message || 'Failed to reject');
     }
   };
 

@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import axios from '@/lib/axios';
+import { apiFetch } from '@/lib/api';
 import { toast } from 'react-toastify';
 import { format } from 'date-fns';
 
@@ -10,38 +10,38 @@ export default function ManageCampaigns() {
   const fetchCampaigns = async () => {
     try {
       const [pendingRes, allRes] = await Promise.all([
-        axios.get('/campaigns/pending'),
-        axios.get('/campaigns/all')
+        apiFetch('/campaigns/pending'),
+        apiFetch('/campaigns/all')
       ]);
-      setCampaigns([...pendingRes.data, ...allRes.data.filter(c => c.status !== 'pending')]);
-    } catch (err) { }
+      setCampaigns([...pendingRes, ...allRes.filter(c => c.status !== 'pending')]);
+    } catch (err) {}
   };
 
   useEffect(() => { fetchCampaigns(); }, []);
 
   const handleApprove = async (id) => {
     try {
-      await axios.patch(`/campaigns/${id}/approve`);
+      await apiFetch(`/campaigns/${id}/approve`, { method: 'PATCH' });
       toast.success('Campaign approved');
       fetchCampaigns();
-    } catch (err) { toast.error(err.response?.data?.message || 'Failed'); }
+    } catch (err) { toast.error(err?.message || 'Failed'); }
   };
 
   const handleReject = async (id) => {
     try {
-      await axios.patch(`/campaigns/${id}/reject`);
+      await apiFetch(`/campaigns/${id}/reject`, { method: 'PATCH' });
       toast.success('Campaign rejected');
       fetchCampaigns();
-    } catch (err) { toast.error(err.response?.data?.message || 'Failed'); }
+    } catch (err) { toast.error(err?.message || 'Failed'); }
   };
 
   const handleDelete = async (id) => {
     if (!confirm('Delete this campaign? Supporters will be refunded.')) return;
     try {
-      await axios.delete(`/campaigns/${id}/admin-delete`);
+      await apiFetch(`/campaigns/${id}/admin-delete`, { method: 'DELETE' });
       toast.success('Campaign deleted');
       fetchCampaigns();
-    } catch (err) { toast.error(err.response?.data?.message || 'Failed'); }
+    } catch (err) { toast.error(err?.message || 'Failed'); }
   };
 
   return (
