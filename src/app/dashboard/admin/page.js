@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { apiFetch } from '@/lib/api';
+import { toast } from 'react-toastify';
 import { Card, CardContent } from '@heroui/react';
 import { HiUserGroup, HiUserAdd, HiCash, HiCreditCard } from 'react-icons/hi';
 
@@ -9,8 +10,8 @@ export default function AdminHome() {
   const [payments, setPayments] = useState([]);
 
   useEffect(() => {
-    apiFetch('/users').then(res => setUsers(res)).catch(() => {});
-    apiFetch('/payments/admin/all').then(res => setPayments(res)).catch(() => {});
+    apiFetch('/users').then(res => setUsers(res)).catch(() => toast.error('Failed to load users'));
+    apiFetch('/payments/admin/all').then(res => setPayments(res)).catch(() => toast.error('Failed to load payments'));
   }, []);
 
   const supporters = users.filter(u => u.role === 'supporter').length;

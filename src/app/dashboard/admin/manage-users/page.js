@@ -11,7 +11,9 @@ export default function ManageUsers() {
     try {
       const res = await apiFetch('/users');
       setUsers(res);
-    } catch (err) {}
+    } catch (err) {
+      toast.error('Failed to load users');
+    }
   };
 
   useEffect(() => { fetchUsers(); }, []);
