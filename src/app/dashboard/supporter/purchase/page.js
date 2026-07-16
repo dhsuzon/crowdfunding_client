@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useSession } from '@/lib/auth-client';
 import { toast } from 'react-toastify';
-import { Button, Card, CardContent, CardHeader, CardTitle } from '@heroui/react';
+import { Button, Card, CardContent } from '@heroui/react';
 
 const packages = [
   { credits: 100, price: 10 },

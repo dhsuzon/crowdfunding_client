@@ -36,17 +36,3 @@ export const signInAndGetToken = new Proxy(authClient.signIn, {
   },
 });
 
-export const signUpAndGetToken = new Proxy(authClient.signUp, {
-  get(target, prop) {
-    if (typeof target[prop] === "function") {
-      return async (...args) => {
-        const result = await target[prop](...args);
-        if (result?.data) {
-          await getApiToken();
-        }
-        return result;
-      };
-    }
-    return target[prop];
-  },
-});

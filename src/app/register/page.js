@@ -77,7 +77,7 @@ export default function RegisterPage() {
               <Label className="text-sm font-medium text-gray-700">Profile Picture URL</Label>
               <Input placeholder="https://example.com/photo.jpg" />
             </TextField>
-            <TextField value={form.password} onChange={(v) => setForm({ ...form, password: v })} isInvalid={!!errors.password} type={showPassword ? 'text' : 'password'} className="flex flex-col gap-1">
+            <TextField value={form.password} onChange={(v) => setForm({ ...form, password: v })} isInvalid={!!errors.password} className="flex flex-col gap-1">
               <Label className="text-sm font-medium text-gray-700">Password</Label>
               <div className="relative">
                 <Input type={showPassword ? 'text' : 'password'} placeholder="•••••••• (min 6 chars)" className="pr-10" />
