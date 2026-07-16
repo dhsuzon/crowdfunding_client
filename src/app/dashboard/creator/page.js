@@ -23,6 +23,7 @@ export default function CreatorHome() {
       setCampaigns(campRes);
       setPendingContributions(contribRes);
     } catch (err) {
+      toast.error('Failed to load dashboard data');
     } finally {
       setLoading(false);
     }

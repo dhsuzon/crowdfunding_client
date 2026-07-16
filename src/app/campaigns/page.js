@@ -5,6 +5,7 @@ import { apiFetch } from '@/lib/api';
 import { format } from 'date-fns';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { toast } from 'react-toastify';
 import { Button, Card, CardContent } from '@heroui/react';
 
 export default function CampaignsPage() {
@@ -19,7 +20,7 @@ export default function CampaignsPage() {
     if (category) params.set('category', category);
     apiFetch(`/campaigns?${params}`)
       .then(res => setCampaigns(res))
-      .catch(() => {})
+      .catch(() => toast.error('Failed to load campaigns'))
       .finally(() => setLoading(false));
   }, [search, category]);
 

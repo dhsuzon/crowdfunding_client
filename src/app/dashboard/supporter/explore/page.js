@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { apiFetch } from '@/lib/api';
 import { format } from 'date-fns';
+import { toast } from 'react-toastify';
 import { Button, Card, CardContent } from '@heroui/react';
 
 export default function ExploreCampaigns() {
@@ -17,7 +18,7 @@ export default function ExploreCampaigns() {
     if (category) params.set('category', category);
     apiFetch(`/campaigns?${params}`)
       .then(res => setCampaigns(res))
-      .catch(() => {})
+      .catch(() => toast.error('Failed to load campaigns'))
       .finally(() => setLoading(false));
   }, [search, category]);
 

@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { apiFetch } from '@/lib/api';
 import Link from 'next/link';
+import { toast } from 'react-toastify';
 
 export default function TopCampaigns() {
   const [campaigns, setCampaigns] = useState([]);
@@ -10,7 +11,7 @@ export default function TopCampaigns() {
   useEffect(() => {
     apiFetch('/campaigns/top-funded')
       .then(res => setCampaigns(res))
-      .catch(() => {})
+      .catch(() => toast.error('Failed to load top campaigns'))
       .finally(() => setLoading(false));
   }, []);
 

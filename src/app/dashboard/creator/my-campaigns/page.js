@@ -15,7 +15,9 @@ export default function MyCampaigns() {
     try {
       const res = await apiFetch('/campaigns/my');
       setCampaigns(res);
-    } catch (err) {}
+    } catch (err) {
+      toast.error('Failed to load campaigns');
+    }
   };
 
   useEffect(() => { fetchCampaigns(); }, []);
