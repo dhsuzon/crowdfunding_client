@@ -6,7 +6,7 @@ const getDb = () => {
   const uri = process.env.MONGODB_URI;
   if (!uri) return null;
   const client = new MongoClient(uri);
-  return client.db();
+  return client.db("crowdfundingDatabase");
 };
 
 const db = getDb();
