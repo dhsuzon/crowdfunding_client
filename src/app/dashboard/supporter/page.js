@@ -4,6 +4,7 @@ import { useSession } from '@/lib/auth-client';
 import { apiFetch } from '@/lib/api';
 import { Card, CardContent } from '@heroui/react';
 import { HiCash, HiClock, HiCheckCircle } from 'react-icons/hi';
+import { toast } from 'react-toastify';
 
 export default function SupporterHome() {
   const { data: session } = useSession();
@@ -12,18 +13,19 @@ export default function SupporterHome() {
 
   useEffect(() => {
     Promise.all([
-      apiFetch('/contributions/my'),
+      apiFetch('/contributions/my?limit=1000'),
       apiFetch('/users/me'),
     ])
       .then(([contribRes, userRes]) => {
         const all = contribRes.contributions || [];
-        const totalContributions = all.length;
-        const pending = all.filter(c => c.status === 'pending').length;
-        const totalAmount = all.filter(c => c.status === 'approved').reduce((sum, c) => sum + c.contributionAmount, 0);
-        setStats({ totalContributions, pendingContributions: pending, totalAmountContributed: totalAmount });
+        setStats({
+          totalContributions: contribRes.total || all.length,
+          pendingContributions: all.filter(c => c.status === 'pending').length,
+          totalAmountContributed: all.filter(c => c.status === 'approved').reduce((sum, c) => sum + c.contributionAmount, 0),
+        });
         setUserProfile(userRes);
       })
-      .catch(() => {});
+      .catch(() => toast.error('Failed to load dashboard data'));
   }, []);
 
   return (

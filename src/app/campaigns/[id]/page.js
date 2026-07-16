@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { useSession } from '@/lib/auth-client';
@@ -11,6 +11,7 @@ import { Button, Card, CardContent, CardHeader, CardTitle } from '@heroui/react'
 
 export default function CampaignDetails() {
   const { id } = useParams();
+  const router = useRouter();
   const { data: session } = useSession();
   const [campaign, setCampaign] = useState(null);
   const [amount, setAmount] = useState('');
@@ -43,6 +44,7 @@ export default function CampaignDetails() {
       toast.success('Contribution submitted! Pending approval.');
       setAmount('');
       setMessage('');
+      router.push('/dashboard/supporter/contributions');
     } catch (err) {
       toast.error(err?.message || 'Contribution failed');
     } finally {
