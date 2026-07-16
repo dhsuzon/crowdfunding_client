@@ -31,6 +31,7 @@ export default function PurchaseCredit() {
 
     if (success === 'true' && credits && sessionId) {
       handled.current = true;
+      window.history.replaceState(null, '', '/dashboard/supporter/purchase');
       fetch('/api/stripe/confirm', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -38,9 +39,9 @@ export default function PurchaseCredit() {
       })
         .then(r => r.json())
         .then(data => {
-          if (data.success) toast.success(`${credits} credits added to your account!`);
+          if (data.success && !data.alreadyProcessed) toast.success(`${credits} credits added to your account!`);
+          else if (data.alreadyProcessed) toast.info('Payment already processed');
           else toast.error(data.error || 'Confirmation failed');
-          router.replace('/dashboard/supporter/purchase');
         })
         .catch(() => toast.error('Failed to confirm payment'));
     }

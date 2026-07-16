@@ -35,6 +35,12 @@ export async function POST(req) {
     await client.connect();
     const db = client.db("crowdfundingDatabase");
 
+    const existingPayment = await db.collection("payments").findOne({ stripeSessionId: sessionId });
+    if (existingPayment) {
+      await client.close();
+      return Response.json({ success: true, credits: pkg.credits, alreadyProcessed: true });
+    }
+
     await db.collection("user").updateOne(
       { email: userSession.user.email },
       { $inc: { credits: pkg.credits } }
