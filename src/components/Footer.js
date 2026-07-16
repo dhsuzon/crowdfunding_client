@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { FaFacebook, FaGithub, FaLinkedin, FaTwitter } from 'react-icons/fa';
+import { FaFacebook, FaGithub, FaLinkedin } from 'react-icons/fa';
 
 export default function Footer() {
   return (
@@ -21,9 +21,8 @@ export default function Footer() {
           <div>
             <h4 className="text-lg font-semibold text-white mb-4">Connect With Us</h4>
             <div className="flex space-x-4">
-              <a href="https://facebook.com/dhsuzon" target="_blank" rel="noopener noreferrer" className="text-2xl hover:text-indigo-400 transition"><FaFacebook /></a>
-              <a href="https://twitter.com/dhsuzon" target="_blank" rel="noopener noreferrer" className="text-2xl hover:text-indigo-400 transition"><FaTwitter /></a>
-              <a href="https://linkedin.com/in/dhsuzon" target="_blank" rel="noopener noreferrer" className="text-2xl hover:text-indigo-400 transition"><FaLinkedin /></a>
+              <a href="https://www.facebook.com/didarsuzon" target="_blank" rel="noopener noreferrer" className="text-2xl hover:text-indigo-400 transition"><FaFacebook /></a>
+              <a href="https://www.linkedin.com/in/dider-hossain-suzon" target="_blank" rel="noopener noreferrer" className="text-2xl hover:text-indigo-400 transition"><FaLinkedin /></a>
               <a href="https://github.com/dhsuzon" target="_blank" rel="noopener noreferrer" className="text-2xl hover:text-indigo-400 transition"><FaGithub /></a>
             </div>
           </div>

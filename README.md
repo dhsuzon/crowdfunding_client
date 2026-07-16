@@ -9,7 +9,7 @@ A full-stack crowdfunding platform built with Next.js, Express.js, MongoDB, and 
 
 ## Live Site
 
-[Live Site](https://crowdfundhub.vercel.app)
+[https://crowdfunding-client-omega.vercel.app/](https://crowdfunding-client-omega.vercel.app/)
 
 ## Features
 
