@@ -6,10 +6,13 @@ import { toast } from 'react-toastify';
 import { Button, Card, CardContent } from '@heroui/react';
 
 const packages = [
+  { credits: 50, price: 6 },
   { credits: 100, price: 10 },
   { credits: 300, price: 25 },
+  { credits: 500, price: 40 },
   { credits: 800, price: 60 },
   { credits: 1500, price: 110 },
+  { credits: 2000, price: 140 },
 ];
 
 export default function PurchaseCredit() {
@@ -74,7 +77,7 @@ export default function PurchaseCredit() {
     <div>
       <h1 className="text-2xl font-bold text-gray-900 mb-2">Purchase Credits</h1>
       <p className="text-gray-500 mb-6">Choose a credit package to support campaigns</p>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {packages.map((pkg) => (
           <Card key={pkg.credits} className="text-center border-2 border-transparent hover:border-indigo-500 transition">
             <CardContent className="p-6">
@@ -89,9 +92,7 @@ export default function PurchaseCredit() {
           </Card>
         ))}
       </div>
-      <div className="mt-8 bg-yellow-50 border border-yellow-200 p-4 rounded-lg">
-        <p className="text-sm text-yellow-700"><strong>Note:</strong> Stripe payment is in test mode. You will be redirected to Stripe Checkout.</p>
-      </div>
+
     </div>
   );
 }

@@ -2,10 +2,13 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 
 const PACKAGES = {
+  "50": { credits: 50, price: 6 },
   "100": { credits: 100, price: 10 },
   "300": { credits: 300, price: 25 },
+  "500": { credits: 500, price: 40 },
   "800": { credits: 800, price: 60 },
   "1500": { credits: 1500, price: 110 },
+  "2000": { credits: 2000, price: 140 },
 };
 
 export async function POST(req) {
