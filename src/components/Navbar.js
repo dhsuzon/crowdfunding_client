@@ -1,10 +1,11 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useSession, signOut } from '@/lib/auth-client';
 import { useRouter } from 'next/navigation';
 import { usePathname } from 'next/navigation';
 import { HiMenu, HiX, HiBell, HiLogout } from 'react-icons/hi';
+import { apiFetch } from '@/lib/api';
 
 export default function Navbar() {
   const { data: session } = useSession();
@@ -12,6 +13,15 @@ export default function Navbar() {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [credits, setCredits] = useState(null);
+
+  useEffect(() => {
+    if (session?.user) {
+      apiFetch('/users/me').then(u => setCredits(u.credits)).catch(() => {});
+    }
+  }, [session?.user]);
+
+  const displayCredits = credits !== null ? credits : session?.user?.credits || 0;
 
   const isDashboard = pathname?.startsWith('/dashboard');
 
@@ -29,7 +39,7 @@ export default function Navbar() {
               <>
                 <Link href="/dashboard" className="text-gray-700 hover:text-indigo-600 transition">Dashboard</Link>
                 <span className="text-sm bg-green-100 text-green-800 px-3 py-1 rounded-full font-medium">
-                  {session.user?.credits || 0} Credits
+                  {displayCredits} Credits
                 </span>
                 <div className="relative">
                   <button className="text-gray-600 hover:text-indigo-600">
@@ -72,7 +82,7 @@ export default function Navbar() {
           {session ? (
             <>
               <Link href="/dashboard" className="block py-2 text-gray-700">Dashboard</Link>
-              <span className="block py-2 text-sm text-green-700">{session.user?.credits || 0} Credits</span>
+              <span className="block py-2 text-sm text-green-700">{displayCredits} Credits</span>
               <button onClick={() => { localStorage.removeItem('better-auth-token'); signOut(); router.push('/login'); }} className="block py-2 text-red-600">Logout</button>
             </>
           ) : (
