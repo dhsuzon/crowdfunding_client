@@ -7,12 +7,20 @@ import Sidebar from '@/components/Sidebar';
 import NotificationPopover from '@/components/NotificationPopover';
 import { HiLogout, HiMenu } from 'react-icons/hi';
 import { signOut } from '@/lib/auth-client';
+import { apiFetch } from '@/lib/api';
 
 export default function DashboardLayout({ children }) {
   const { data: session, isPending } = useSession();
   const router = useRouter();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [credits, setCredits] = useState(null);
   const handleLogout = () => { localStorage.removeItem('better-auth-token'); signOut(); router.push('/login'); };
+
+  useEffect(() => {
+    if (session?.user) {
+      apiFetch('/users/me').then(u => setCredits(u.credits)).catch(() => {});
+    }
+  }, [session?.user]);
 
   useEffect(() => {
     if (!isPending && !session) router.push('/login');
@@ -32,7 +40,7 @@ export default function DashboardLayout({ children }) {
             <Link href="/" className="text-xl font-bold text-indigo-600">CFH</Link>
           </div>
           <div className="flex items-center space-x-3 md:space-x-4">
-            <span className="text-xs md:text-sm bg-green-100 text-green-800 px-2 md:px-3 py-1 rounded-full font-medium">{session.user?.credits || 0} Credits</span>
+            <span className="text-xs md:text-sm bg-green-100 text-green-800 px-2 md:px-3 py-1 rounded-full font-medium">{credits !== null ? credits : session.user?.credits || 0} Credits</span>
             <NotificationPopover />
             <img src={session.user?.photoURL || `https://ui-avatars.com/api/?name=${session.user?.name}`} alt="" className="w-7 h-7 md:w-8 md:h-8 rounded-full object-cover" />
             <span className="hidden md:inline text-sm text-gray-700">{session.user?.name}</span>
