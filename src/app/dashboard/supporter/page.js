@@ -12,6 +12,7 @@ export default function SupporterHome() {
   const [userProfile, setUserProfile] = useState(null);
 
   useEffect(() => {
+    if (!session?.user) return;
     apiFetch('/contributions/my?limit=1000')
       .then(contribRes => {
         const all = contribRes.contributions || [];
@@ -25,8 +26,12 @@ export default function SupporterHome() {
 
     apiFetch('/users/me')
       .then(setUserProfile)
-      .catch(() => toast.error('Failed to load profile'));
-  }, []);
+      .catch(() => {
+        if (session?.user?.credits !== undefined) {
+          setUserProfile({ credits: session.user.credits });
+        }
+      });
+  }, [session?.user]);
 
   return (
     <div>
