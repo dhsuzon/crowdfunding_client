@@ -10,19 +10,28 @@ import ResponsiveTable from '@/components/ResponsiveTable';
 export default function Withdrawals() {
   const { data: session } = useSession();
   const [withdrawals, setWithdrawals] = useState([]);
+  const [userProfile, setUserProfile] = useState(null);
   const [form, setForm] = useState({ withdrawalCredits: '', paymentSystem: 'Stripe', accountNumber: '' });
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    if (session?.user?.email) {
-      apiFetch(`/withdrawals/my/${session.user.email}`)
-        .then(res => setWithdrawals(res))
-        .catch(() => {});
-    }
-  }, [session?.user?.email]);
+  const fetchData = () => {
+    if (!session?.user?.email) return;
+    Promise.all([
+      apiFetch(`/withdrawals/my/${session.user.email}`),
+      apiFetch('/users/me'),
+    ])
+      .then(([wRes, uRes]) => {
+        setWithdrawals(wRes);
+        setUserProfile(uRes);
+      })
+      .catch(() => {});
+  };
 
+  useEffect(() => { fetchData(); }, [session?.user?.email]);
+
+  const totalRaised = userProfile?.totalRaisedCredits || 0;
   const withdrawalAmount = form.withdrawalCredits ? Number(form.withdrawalCredits) / 20 : 0;
-  const canWithdraw = Number(form.withdrawalCredits) >= 200 && Number(form.withdrawalCredits) <= (session?.user?.totalRaisedCredits || 0);
+  const canWithdraw = Number(form.withdrawalCredits) >= 200 && Number(form.withdrawalCredits) <= totalRaised;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -35,8 +44,7 @@ export default function Withdrawals() {
       });
       toast.success('Withdrawal request submitted!');
       setForm({ withdrawalCredits: '', paymentSystem: 'Stripe', accountNumber: '' });
-      const res = await apiFetch(`/withdrawals/my/${session?.user?.email}`);
-      setWithdrawals(res);
+      fetchData();
     } catch (err) {
       toast.error(err?.message || 'Withdrawal failed');
     } finally {
@@ -51,9 +59,9 @@ export default function Withdrawals() {
         <Card className="shadow-sm">
           <CardContent className="p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-2">Your Earnings</h2>
-            <p className="text-3xl font-bold text-indigo-600">{session?.user?.totalRaisedCredits || 0}</p>
+            <p className="text-3xl font-bold text-indigo-600">{totalRaised}</p>
             <p className="text-sm text-gray-500">Total Raised Credits</p>
-            <p className="text-2xl font-bold text-green-600 mt-2">${((session?.user?.totalRaisedCredits || 0) / 20).toFixed(2)}</p>
+            <p className="text-2xl font-bold text-green-600 mt-2">${(totalRaised / 20).toFixed(2)}</p>
             <p className="text-sm text-gray-500">Withdrawal Amount (20 credits = $1)</p>
           </CardContent>
         </Card>

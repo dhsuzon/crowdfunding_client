@@ -8,15 +8,20 @@ import { HiCash, HiClock, HiCheckCircle } from 'react-icons/hi';
 export default function SupporterHome() {
   const { data: session } = useSession();
   const [stats, setStats] = useState({ totalContributions: 0, pendingContributions: 0, totalAmountContributed: 0 });
+  const [userProfile, setUserProfile] = useState(null);
 
   useEffect(() => {
-    apiFetch('/contributions/my')
-      .then(res => {
-        const all = res.contributions || [];
+    Promise.all([
+      apiFetch('/contributions/my'),
+      apiFetch('/users/me'),
+    ])
+      .then(([contribRes, userRes]) => {
+        const all = contribRes.contributions || [];
         const totalContributions = all.length;
         const pending = all.filter(c => c.status === 'pending').length;
         const totalAmount = all.filter(c => c.status === 'approved').reduce((sum, c) => sum + c.contributionAmount, 0);
         setStats({ totalContributions, pendingContributions: pending, totalAmountContributed: totalAmount });
+        setUserProfile(userRes);
       })
       .catch(() => {});
   }, []);
@@ -62,7 +67,7 @@ export default function SupporterHome() {
       <Card className="shadow-sm">
         <CardContent className="p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Your Credits</h2>
-          <p className="text-4xl font-bold text-indigo-600">{session?.user?.credits || 0}</p>
+          <p className="text-4xl font-bold text-indigo-600">{userProfile?.credits || 0}</p>
           <p className="text-sm text-gray-500 mt-1">Available credits to contribute</p>
         </CardContent>
       </Card>
