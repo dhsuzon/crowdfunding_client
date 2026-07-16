@@ -27,6 +27,7 @@ export default function AddCampaign() {
       toast.success('Campaign created! Waiting for admin approval.');
       router.push('/dashboard/creator/my-campaigns');
     } catch (err) {
+      console.error('Add campaign error:', err);
       toast.error(err?.message || 'Failed to create campaign');
     } finally {
       setLoading(false);
