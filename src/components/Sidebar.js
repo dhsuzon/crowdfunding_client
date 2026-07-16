@@ -66,7 +66,7 @@ export default function Sidebar() {
             </Link>
           );
         })}
-        <button onClick={() => { localStorage.removeItem('better-auth-token'); signOut(); router.push('/'); }} className="flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 w-full">
+        <button onClick={() => { localStorage.removeItem('better-auth-token'); signOut(); router.push('/login'); }} className="flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 w-full">
           <FiLogOut size={20} />
           <span>Logout</span>
         </button>

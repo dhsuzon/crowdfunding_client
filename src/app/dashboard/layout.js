@@ -11,7 +11,7 @@ import { signOut } from '@/lib/auth-client';
 export default function DashboardLayout({ children }) {
   const { data: session, isPending } = useSession();
   const router = useRouter();
-  const handleLogout = () => { localStorage.removeItem('better-auth-token'); signOut(); router.push('/'); };
+  const handleLogout = () => { localStorage.removeItem('better-auth-token'); signOut(); router.push('/login'); };
 
   useEffect(() => {
     if (!isPending && !session) router.push('/login');

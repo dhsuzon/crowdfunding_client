@@ -38,7 +38,7 @@ export async function POST(req) {
         userEmail: session.user.email,
         credits: pkg.credits.toString(),
       },
-      success_url: `${req.headers.get("origin")}/dashboard/supporter/purchase?success=true&credits=${pkg.credits}`,
+      success_url: `${req.headers.get("origin")}/dashboard/supporter/purchase?success=true&credits=${pkg.credits}&session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.get("origin")}/dashboard/supporter/purchase?canceled=true`,
     });
     return Response.json({ url: checkoutSession.url });

@@ -1,6 +1,7 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useSession } from '@/lib/auth-client';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 import { Button, Card, CardContent } from '@heroui/react';
 
@@ -14,6 +15,39 @@ const packages = [
 export default function PurchaseCredit() {
   const { data: session } = useSession();
   const [loading, setLoading] = useState(null);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const handled = useRef(false);
+
+  useEffect(() => {
+    if (handled.current) return;
+    const success = searchParams.get('success');
+    const canceled = searchParams.get('canceled');
+    const credits = searchParams.get('credits');
+    const sessionId = searchParams.get('session_id');
+
+    if (success === 'true' && credits && sessionId) {
+      handled.current = true;
+      fetch('/api/stripe/confirm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ credits: Number(credits), sessionId }),
+      })
+        .then(r => r.json())
+        .then(data => {
+          if (data.success) toast.success(`${credits} credits added to your account!`);
+          else toast.error(data.error || 'Confirmation failed');
+          router.replace('/dashboard/supporter/purchase');
+        })
+        .catch(() => toast.error('Failed to confirm payment'));
+    }
+
+    if (canceled === 'true') {
+      handled.current = true;
+      toast.info('Payment was canceled');
+      router.replace('/dashboard/supporter/purchase');
+    }
+  }, []);
 
   const handlePurchase = async (pkg) => {
     setLoading(pkg.credits);

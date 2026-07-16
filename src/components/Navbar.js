@@ -43,7 +43,7 @@ export default function Navbar() {
                   </button>
                   {showDropdown && (
                     <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 border" onClick={() => setShowDropdown(false)}>
-                      <button onClick={() => { localStorage.removeItem('better-auth-token'); signOut(); router.push('/'); }} className="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100">
+                      <button onClick={() => { localStorage.removeItem('better-auth-token'); signOut(); router.push('/login'); }} className="flex items-center w-full px-4 py-2 text-gray-700 hover:bg-gray-100">
                         <HiLogout className="mr-2" /> Logout
                       </button>
                     </div>
@@ -73,7 +73,7 @@ export default function Navbar() {
             <>
               <Link href="/dashboard" className="block py-2 text-gray-700">Dashboard</Link>
               <span className="block py-2 text-sm text-green-700">{session.user?.credits || 0} Credits</span>
-              <button onClick={() => { localStorage.removeItem('better-auth-token'); signOut(); router.push('/'); }} className="block py-2 text-red-600">Logout</button>
+              <button onClick={() => { localStorage.removeItem('better-auth-token'); signOut(); router.push('/login'); }} className="block py-2 text-red-600">Logout</button>
             </>
           ) : (
             <>
