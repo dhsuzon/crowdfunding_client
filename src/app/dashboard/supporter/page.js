@@ -12,20 +12,20 @@ export default function SupporterHome() {
   const [userProfile, setUserProfile] = useState(null);
 
   useEffect(() => {
-    Promise.all([
-      apiFetch('/contributions/my?limit=1000'),
-      apiFetch('/users/me'),
-    ])
-      .then(([contribRes, userRes]) => {
+    apiFetch('/contributions/my?limit=1000')
+      .then(contribRes => {
         const all = contribRes.contributions || [];
         setStats({
           totalContributions: contribRes.total || all.length,
           pendingContributions: all.filter(c => c.status === 'pending').length,
           totalAmountContributed: all.filter(c => c.status === 'approved').reduce((sum, c) => sum + c.contributionAmount, 0),
         });
-        setUserProfile(userRes);
       })
-      .catch(() => toast.error('Failed to load dashboard data'));
+      .catch(() => toast.error('Failed to load contributions'));
+
+    apiFetch('/users/me')
+      .then(setUserProfile)
+      .catch(() => toast.error('Failed to load profile'));
   }, []);
 
   return (
