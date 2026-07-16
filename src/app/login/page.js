@@ -1,13 +1,29 @@
 'use client';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { signInAndGetToken as signIn } from '@/lib/auth-client';
 import { toast } from 'react-toastify';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { Button, Input, TextField, Label, FieldError, Form } from '@heroui/react';
+import { Button, Input, InputGroup, TextField, Label, FieldError, Form } from '@heroui/react';
 import { HiEye, HiEyeOff } from 'react-icons/hi';
+
+function getLoginError(err) {
+  if (!err) return 'Login failed. Please try again.';
+  const msg = (err.message || '').toLowerCase();
+  const code = (err.code || '').toLowerCase();
+  if (code === 'user_not_found' || msg.includes('user not found') || msg.includes('no account')) {
+    return 'No account found with this email. Please check your email or register.';
+  }
+  if (code === 'invalid_password' || msg.includes('invalid password') || msg.includes('invalid email or password')) {
+    return 'Invalid email or password. Please try again.';
+  }
+  if (msg.includes('rate limit') || code === 'rate_limit') {
+    return 'Too many attempts. Please wait and try again.';
+  }
+  return err.message || 'Login failed. Please try again.';
+}
 
 export default function LoginPage() {
   const router = useRouter();
@@ -16,33 +32,37 @@ export default function LoginPage() {
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
 
-  const validate = () => {
+  const validate = useCallback(() => {
     const errs = {};
     if (!form.email) errs.email = 'Email is required';
     else if (!/\S+@\S+\.\S+/.test(form.email)) errs.email = 'Invalid email format';
     if (!form.password) errs.password = 'Password is required';
     setErrors(errs);
     return Object.keys(errs).length === 0;
-  };
+  }, [form]);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
     if (!validate()) return;
     setLoading(true);
     try {
-      const { data } = await signIn.email({ email: form.email, password: form.password });
-      if (data) {
+      const result = await signIn.email({ email: form.email, password: form.password });
+      if (result.error) {
+        toast.error(getLoginError(result.error));
+        return;
+      }
+      if (result.data) {
         toast.success('Login successful!');
         router.push('/dashboard');
       }
     } catch (err) {
-      toast.error(err?.message || 'Login failed');
+      toast.error(getLoginError(err));
     } finally {
       setLoading(false);
     }
-  };
+  }, [form, validate, router]);
 
-  const handleGoogle = async () => {
+  const handleGoogle = useCallback(async () => {
     try {
       const result = await signIn.social({ provider: 'google' });
       if (result?.data) {
@@ -54,7 +74,7 @@ export default function LoginPage() {
     } catch (err) {
       toast.error(err?.message || 'Google login failed');
     }
-  };
+  }, [router]);
 
   return (
     <>
@@ -68,14 +88,16 @@ export default function LoginPage() {
               <Input placeholder="your@email.com" />
               {errors.email && <FieldError className="text-red-500 text-sm">{errors.email}</FieldError>}
             </TextField>
-            <TextField value={form.password} onChange={(v) => setForm({ ...form, password: v })} isInvalid={!!errors.password} type={showPassword ? 'text' : 'password'} className="flex flex-col gap-1">
+            <TextField value={form.password} onChange={(v) => setForm({ ...form, password: v })} isInvalid={!!errors.password} className="flex flex-col gap-1">
               <Label className="text-sm font-medium text-gray-700">Password</Label>
-              <div className="relative">
-                <Input type={showPassword ? 'text' : 'password'} placeholder="••••••••" className="pr-10" />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700">
-                  {showPassword ? <HiEyeOff size={20} /> : <HiEye size={20} />}
-                </button>
-              </div>
+              <InputGroup>
+                <InputGroup.Input type={showPassword ? 'text' : 'password'} placeholder="••••••••" />
+                <InputGroup.Suffix>
+                  <Button isIconOnly variant="ghost" size="sm" onPress={() => setShowPassword(!showPassword)} aria-label={showPassword ? 'Hide password' : 'Show password'}>
+                    {showPassword ? <HiEyeOff size={18} /> : <HiEye size={18} />}
+                  </Button>
+                </InputGroup.Suffix>
+              </InputGroup>
               {errors.password && <FieldError className="text-red-500 text-sm">{errors.password}</FieldError>}
             </TextField>
             <Button type="submit" isDisabled={loading} className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 font-medium disabled:opacity-50">
