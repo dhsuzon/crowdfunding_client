@@ -15,6 +15,7 @@ export const auth = betterAuth({
   ...(db ? { database: mongodbAdapter(db) } : {}),
   emailAndPassword: {
     enabled: true,
+    autoSignIn: false,
   },
   socialProviders: {
     google: {

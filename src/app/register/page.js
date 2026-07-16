@@ -2,11 +2,11 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { signUpAndGetToken as signUp } from '@/lib/auth-client';
+import { signUp } from '@/lib/auth-client';
 import { toast } from 'react-toastify';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { Button, Input, TextField, Label, FieldError, Select, SelectTrigger, SelectValue, SelectPopover } from '@heroui/react';
+import { Button, Input, TextField, Label, FieldError, Select, SelectTrigger, SelectValue, SelectPopover, Form, Card, CardContent } from '@heroui/react';
 import { ListBox, ListBoxItem } from 'react-aria-components';
 import { HiEye, HiEyeOff } from 'react-icons/hi';
 
@@ -33,13 +33,21 @@ export default function RegisterPage() {
     if (!validate()) return;
     setLoading(true);
     try {
-      const { data } = await signUp.email({
-        name: form.name, email: form.email, password: form.password, role: form.role, photoURL: form.photoURL,
+      const credits = form.role === 'creator' ? 20 : 50;
+      const { error } = await signUp.email({
+        name: form.name, email: form.email, password: form.password,
+        role: form.role, photoURL: form.photoURL, credits,
       });
-      if (data) {
-        toast.success('Registration successful!');
-        router.push('/dashboard');
+      if (error) {
+        if (error.code === 'USER_ALREADY_EXISTS') {
+          toast.error('This email is already registered. Please sign in.');
+          router.push('/login');
+          return;
+        }
+        throw new Error(error.message || 'Registration failed');
       }
+      toast.success('Account created! Please sign in.');
+      router.push('/login');
     } catch (err) {
       toast.error(err?.message || 'Registration failed');
     } finally {
@@ -51,9 +59,10 @@ export default function RegisterPage() {
     <>
       <Navbar />
       <div className="min-h-screen flex items-center justify-center bg-gray-50 pt-16 px-4 py-8">
-        <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
+        <Card className="w-full max-w-md shadow-lg">
+          <CardContent className="p-8">
           <h2 className="text-2xl font-bold text-center text-gray-900 mb-6">Create Account</h2>
-          <form onSubmit={handleSubmit} className="space-y-5">
+          <Form onSubmit={handleSubmit} className="space-y-5">
             <TextField value={form.name} onChange={(v) => setForm({ ...form, name: v })} isInvalid={!!errors.name} className="flex flex-col gap-1">
               <Label className="text-sm font-medium text-gray-700">Name</Label>
               <Input placeholder="John Doe" />
@@ -95,11 +104,12 @@ export default function RegisterPage() {
             <Button type="submit" isDisabled={loading} className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 font-medium disabled:opacity-50">
               {loading ? 'Creating account...' : 'Create Account'}
             </Button>
-          </form>
+          </Form>
           <p className="text-center text-sm text-gray-500 mt-6">
             Already have an account? <Link href="/login" className="text-indigo-600 hover:underline">Sign In</Link>
           </p>
-        </div>
+          </CardContent>
+        </Card>
       </div>
       <Footer />
     </>
