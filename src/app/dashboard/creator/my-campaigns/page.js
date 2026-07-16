@@ -4,6 +4,7 @@ import { apiFetch } from '@/lib/api';
 import { toast } from 'react-toastify';
 import { format } from 'date-fns';
 import { Button, Card, CardContent } from '@heroui/react';
+import ResponsiveTable from '@/components/ResponsiveTable';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 
 export default function MyCampaigns() {
@@ -52,47 +53,27 @@ export default function MyCampaigns() {
     setEditForm({ title: campaign.title, story: campaign.story, rewardInfo: campaign.rewardInfo || '' });
   };
 
+  const columns = [
+    { key: 'title', label: 'Title', render: (v) => <span className="truncate block max-w-[200px]">{v}</span> },
+    { key: 'category', label: 'Category' },
+    { key: 'fundingGoal', label: 'Goal', render: (v) => <span className="font-medium text-indigo-600">${v}</span> },
+    { key: 'amountRaised', label: 'Raised', render: (v) => <span className="font-medium text-green-600">${v}</span> },
+    { key: 'status', label: 'Status', render: (v) => (
+      <span className={`px-2 py-1 rounded-full text-xs font-medium ${v === 'approved' ? 'bg-green-100 text-green-700' : v === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>{v}</span>
+    )},
+    { key: 'deadline', label: 'Deadline', render: (v) => format(new Date(v), 'MMM dd, yyyy') },
+    { key: 'actions', label: 'Actions', render: (_, row) => (
+      <div className="flex space-x-2">
+        <Button onPress={() => startEdit(row)} className="p-2 text-blue-600 bg-transparent min-w-0 h-auto"><FaEdit /></Button>
+        <Button onPress={() => handleDelete(row._id)} className="p-2 text-red-600 bg-transparent min-w-0 h-auto"><FaTrash /></Button>
+      </div>
+    )},
+  ];
+
   return (
     <div>
       <h1 className="text-2xl font-bold text-gray-900 mb-6">My Campaigns</h1>
-      <Card className="shadow-sm">
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Goal</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Raised</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Deadline</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {campaigns.map(c => (
-                  <tr key={c._id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 text-sm text-gray-900 max-w-[200px] truncate">{c.title}</td>
-                    <td className="px-6 py-4 text-sm text-gray-500">{c.category}</td>
-                    <td className="px-6 py-4 text-sm text-indigo-600 font-medium">${c.fundingGoal}</td>
-                    <td className="px-6 py-4 text-sm text-green-600 font-medium">${c.amountRaised}</td>
-                    <td className="px-6 py-4">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${c.status === 'approved' ? 'bg-green-100 text-green-700' : c.status === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>{c.status}</span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">{format(new Date(c.deadline), 'MMM dd, yyyy')}</td>
-                    <td className="px-6 py-4 flex space-x-2">
-                      <Button onPress={() => startEdit(c)} className="p-2 text-blue-600 bg-transparent min-w-0 h-auto"><FaEdit /></Button>
-                      <Button onPress={() => handleDelete(c._id)} className="p-2 text-red-600 bg-transparent min-w-0 h-auto"><FaTrash /></Button>
-                    </td>
-                  </tr>
-                ))}
-                {campaigns.length === 0 && <tr><td colSpan="7" className="px-6 py-8 text-center text-gray-500">No campaigns yet</td></tr>}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
+      <ResponsiveTable columns={columns} data={campaigns} emptyMessage="No campaigns yet" />
       {editing && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setEditing(null)}>
           <Card className="max-w-lg w-full mx-4" onClick={(e) => e.stopPropagation()}>

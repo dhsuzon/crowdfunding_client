@@ -5,6 +5,7 @@ import { apiFetch } from '@/lib/api';
 import { toast } from 'react-toastify';
 import { format } from 'date-fns';
 import { Button, Card, CardContent } from '@heroui/react';
+import ResponsiveTable from '@/components/ResponsiveTable';
 
 export default function Withdrawals() {
   const { data: session } = useSession();
@@ -92,34 +93,19 @@ export default function Withdrawals() {
       <Card className="shadow-sm">
         <CardContent className="p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Withdrawal History</h2>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Credits</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount ($)</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Payment</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Account</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {withdrawals.map(w => (
-                  <tr key={w._id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 text-sm text-gray-900">{w.withdrawalCredits}</td>
-                    <td className="px-6 py-4 text-sm font-medium text-green-600">${w.withdrawalAmount.toFixed(2)}</td>
-                    <td className="px-6 py-4 text-sm text-gray-500">{w.paymentSystem}</td>
-                    <td className="px-6 py-4 text-sm text-gray-500">{w.accountNumber}</td>
-                    <td className="px-6 py-4">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${w.status === 'approved' ? 'bg-green-100 text-green-700' : w.status === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>{w.status}</span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">{format(new Date(w.createdAt), 'MMM dd, yyyy')}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          {(() => {
+            const historyColumns = [
+              { key: 'withdrawalCredits', label: 'Credits' },
+              { key: 'withdrawalAmount', label: 'Amount ($)', render: (v) => <span className="font-medium text-green-600">${v.toFixed(2)}</span> },
+              { key: 'paymentSystem', label: 'Payment' },
+              { key: 'accountNumber', label: 'Account' },
+              { key: 'status', label: 'Status', render: (v) => (
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${v === 'approved' ? 'bg-green-100 text-green-700' : v === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>{v}</span>
+              )},
+              { key: 'createdAt', label: 'Date', render: (v) => format(new Date(v), 'MMM dd, yyyy') },
+            ];
+            return <ResponsiveTable columns={historyColumns} data={withdrawals} emptyMessage="No withdrawal history yet" />;
+          })()}
         </CardContent>
       </Card>
     </div>

@@ -5,6 +5,7 @@ import { apiFetch } from '@/lib/api';
 import { toast } from 'react-toastify';
 import { format } from 'date-fns';
 import { Button, Card, CardContent } from '@heroui/react';
+import ResponsiveTable from '@/components/ResponsiveTable';
 import { HiCash, HiCheckCircle, HiEye } from 'react-icons/hi';
 
 export default function CreatorHome() {
@@ -97,35 +98,22 @@ export default function CreatorHome() {
       <Card className="shadow-sm mb-8">
         <CardContent className="p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Contributions To Review ({pendingContributions.length})</h2>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Supporter</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Campaign</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {pendingContributions.map(c => (
-                  <tr key={c._id} className="hover:bg-gray-50">
-                    <td className="px-4 py-4 text-sm text-gray-900">{c.supporterName}</td>
-                    <td className="px-4 py-4 text-sm text-gray-500">{c.campaignTitle}</td>
-                    <td className="px-4 py-4 text-sm font-medium text-indigo-600">{c.contributionAmount} Credits</td>
-                    <td className="px-4 py-4 text-sm text-gray-500">{format(new Date(c.createdAt), 'MMM dd, yyyy')}</td>
-                    <td className="px-4 py-4 flex space-x-2">
-                      <Button onPress={() => setSelectedContribution(c)} className="p-1 text-blue-600 bg-transparent min-w-0 h-auto"><HiEye size={18} /></Button>
-                      <Button onPress={() => handleApprove(c._id)} className="px-3 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200 text-xs">Approve</Button>
-                      <Button onPress={() => handleReject(c._id)} className="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 text-xs">Reject</Button>
-                    </td>
-                  </tr>
-                ))}
-                {pendingContributions.length === 0 && <tr><td colSpan="5" className="px-4 py-8 text-center text-gray-500">No pending contributions</td></tr>}
-              </tbody>
-            </table>
-          </div>
+          {(() => {
+            const contribColumns = [
+              { key: 'supporterName', label: 'Supporter' },
+              { key: 'campaignTitle', label: 'Campaign' },
+              { key: 'contributionAmount', label: 'Amount', render: (v) => <span className="font-medium text-indigo-600">{v} Credits</span> },
+              { key: 'createdAt', label: 'Date', render: (v) => format(new Date(v), 'MMM dd, yyyy') },
+              { key: 'actions', label: 'Actions', render: (_, row) => (
+                <div className="flex space-x-2">
+                  <Button onPress={() => setSelectedContribution(row)} className="p-1 text-blue-600 bg-transparent min-w-0 h-auto"><HiEye size={18} /></Button>
+                  <Button onPress={() => handleApprove(row._id)} className="px-3 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200 text-xs">Approve</Button>
+                  <Button onPress={() => handleReject(row._id)} className="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 text-xs">Reject</Button>
+                </div>
+              )},
+            ];
+            return <ResponsiveTable columns={contribColumns} data={pendingContributions} emptyMessage="No pending contributions" />;
+          })()}
         </CardContent>
       </Card>
       {selectedContribution && (

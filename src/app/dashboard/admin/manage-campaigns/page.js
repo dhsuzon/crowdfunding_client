@@ -3,7 +3,8 @@ import { useState, useEffect } from 'react';
 import { apiFetch } from '@/lib/api';
 import { toast } from 'react-toastify';
 import { format } from 'date-fns';
-import { Button, Card, CardContent } from '@heroui/react';
+import { Button } from '@heroui/react';
+import ResponsiveTable from '@/components/ResponsiveTable';
 
 export default function ManageCampaigns() {
   const [campaigns, setCampaigns] = useState([]);
@@ -45,49 +46,30 @@ export default function ManageCampaigns() {
     } catch (err) { toast.error(err?.message || 'Failed'); }
   };
 
+  const columns = [
+    { key: 'title', label: 'Title', render: (v) => <span className="truncate block max-w-[200px]">{v}</span> },
+    { key: 'creatorName', label: 'Creator' },
+    { key: 'category', label: 'Category' },
+    { key: 'fundingGoal', label: 'Goal', render: (v) => <span className="font-medium">${v}</span> },
+    { key: 'amountRaised', label: 'Raised', render: (v) => <span className="text-indigo-600">${v}</span> },
+    { key: 'status', label: 'Status', render: (v) => (
+      <span className={`px-2 py-1 rounded-full text-xs font-medium ${v === 'approved' ? 'bg-green-100 text-green-700' : v === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>{v}</span>
+    )},
+    { key: 'actions', label: 'Actions', render: (_, row) => (
+      <div className="flex space-x-2">
+        {row.status === 'pending' && <>
+          <Button onPress={() => handleApprove(row._id)} className="px-3 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200 text-xs">Approve</Button>
+          <Button onPress={() => handleReject(row._id)} className="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 text-xs">Reject</Button>
+        </>}
+        <Button onPress={() => handleDelete(row._id)} className="px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 text-xs">Delete</Button>
+      </div>
+    )},
+  ];
+
   return (
     <div>
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Manage Campaigns</h1>
-      <Card className="shadow-sm">
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Title</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Creator</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Goal</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Raised</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {campaigns.map(c => (
-                  <tr key={c._id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 text-sm text-gray-900 max-w-[200px] truncate">{c.title}</td>
-                    <td className="px-6 py-4 text-sm text-gray-500">{c.creatorName}</td>
-                    <td className="px-6 py-4 text-sm text-gray-500">{c.category}</td>
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900">${c.fundingGoal}</td>
-                    <td className="px-6 py-4 text-sm text-indigo-600">${c.amountRaised}</td>
-                    <td className="px-6 py-4">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${c.status === 'approved' ? 'bg-green-100 text-green-700' : c.status === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>{c.status}</span>
-                    </td>
-                    <td className="px-6 py-4 flex space-x-2">
-                      {c.status === 'pending' && <>
-                        <Button onPress={() => handleApprove(c._id)} className="px-3 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200 text-xs">Approve</Button>
-                        <Button onPress={() => handleReject(c._id)} className="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 text-xs">Reject</Button>
-                      </>}
-                      <Button onPress={() => handleDelete(c._id)} className="px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 text-xs">Delete</Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
+      <ResponsiveTable columns={columns} data={campaigns} emptyMessage="No campaigns found" />
     </div>
   );
 }

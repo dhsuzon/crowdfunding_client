@@ -3,10 +3,10 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSession, signOut } from '@/lib/auth-client';
 import { useRouter } from 'next/navigation';
-import { HiHome, HiCollection, HiCash, HiCreditCard, HiUserGroup, HiFlag, HiPlusCircle, HiDocumentReport } from 'react-icons/hi';
+import { HiHome, HiCollection, HiCash, HiCreditCard, HiUserGroup, HiFlag, HiPlusCircle, HiDocumentReport, HiX } from 'react-icons/hi';
 import { FiLogOut } from 'react-icons/fi';
 
-export default function Sidebar() {
+export default function Sidebar({ isMobileOpen, onMobileClose }) {
   const { data: session } = useSession();
   const pathname = usePathname();
   const router = useRouter();
@@ -38,10 +38,13 @@ export default function Sidebar() {
 
   const links = user?.role === 'admin' ? adminLinks : user?.role === 'creator' ? creatorLinks : supporterLinks;
 
-  return (
-    <aside className="w-64 bg-white shadow-lg min-h-screen hidden lg:block">
+  const sidebarContent = (
+    <>
       <div className="p-6">
-        <Link href="/" className="text-2xl font-bold text-indigo-600">CrowdFundHub</Link>
+        <div className="flex items-center justify-between">
+          <Link href="/" className="text-2xl font-bold text-indigo-600">CrowdFundHub</Link>
+          <button onClick={onMobileClose} className="lg:hidden text-gray-500 hover:text-gray-700"><HiX size={24} /></button>
+        </div>
       </div>
       <div className="px-6 pb-4 border-b">
         <div className="flex items-center space-x-3">
@@ -60,7 +63,7 @@ export default function Sidebar() {
           const Icon = link.icon;
           const isActive = pathname === link.href;
           return (
-            <Link key={link.href} href={link.href} className={`flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition ${isActive ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50'}`}>
+            <Link key={link.href} href={link.href} onClick={onMobileClose} className={`flex items-center space-x-3 px-4 py-3 rounded-lg text-sm font-medium transition ${isActive ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:bg-gray-50'}`}>
               <Icon size={20} />
               <span>{link.label}</span>
             </Link>
@@ -71,6 +74,22 @@ export default function Sidebar() {
           <span>Logout</span>
         </button>
       </nav>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      <aside className="w-64 bg-white shadow-lg min-h-screen hidden lg:flex lg:flex-col">
+        {sidebarContent}
+      </aside>
+      {isMobileOpen && (
+        <div className="fixed inset-0 z-40 lg:hidden">
+          <div className="fixed inset-0 bg-black/50" onClick={onMobileClose} />
+          <aside className="fixed top-0 left-0 w-64 bg-white shadow-lg min-h-screen z-50 flex flex-col">
+            {sidebarContent}
+          </aside>
+        </div>
+      )}
+    </>
   );
 }

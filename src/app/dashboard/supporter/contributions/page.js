@@ -3,7 +3,8 @@ import { useState, useEffect } from 'react';
 import { useSession } from '@/lib/auth-client';
 import { apiFetch } from '@/lib/api';
 import { format } from 'date-fns';
-import { Button, Card, CardContent } from '@heroui/react';
+import { Button } from '@heroui/react';
+import ResponsiveTable from '@/components/ResponsiveTable';
 
 export default function MyContributions() {
   const { data: session } = useSession();
@@ -15,48 +16,27 @@ export default function MyContributions() {
       .catch(() => {});
   }, [data.page]);
 
+  const columns = [
+    { key: 'campaignTitle', label: 'Campaign' },
+    { key: 'contributionAmount', label: 'Amount', render: (v) => <span className="font-medium text-indigo-600">{v} Credits</span> },
+    { key: 'creatorName', label: 'Creator' },
+    { key: 'status', label: 'Status', render: (v) => (
+      <span className={`px-2 py-1 rounded-full text-xs font-medium ${v === 'approved' ? 'bg-green-100 text-green-700' : v === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>{v}</span>
+    )},
+    { key: 'createdAt', label: 'Date', render: (v) => format(new Date(v), 'MMM dd, yyyy') },
+  ];
+
   return (
     <div>
       <h1 className="text-2xl font-bold text-gray-900 mb-6">My Contributions</h1>
-      <Card className="shadow-sm">
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Campaign</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Creator</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {data.contributions.map(c => (
-                  <tr key={c._id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 text-sm text-gray-900">{c.campaignTitle}</td>
-                    <td className="px-6 py-4 text-sm font-medium text-indigo-600">{c.contributionAmount} Credits</td>
-                    <td className="px-6 py-4 text-sm text-gray-500">{c.creatorName}</td>
-                    <td className="px-6 py-4">
-                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${c.status === 'approved' ? 'bg-green-100 text-green-700' : c.status === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>
-                        {c.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-gray-500">{format(new Date(c.createdAt), 'MMM dd, yyyy')}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          {data.totalPages > 1 && (
-            <div className="flex justify-center items-center space-x-2 p-4">
-              <Button isDisabled={data.page <= 1} onPress={() => setData(prev => ({ ...prev, page: prev.page - 1 }))} className="px-3 py-1 bg-gray-100 rounded hover:bg-gray-200 disabled:opacity-50 text-sm">Prev</Button>
-              <span className="text-sm text-gray-600">Page {data.page} of {data.totalPages}</span>
-              <Button isDisabled={data.page >= data.totalPages} onPress={() => setData(prev => ({ ...prev, page: prev.page + 1 }))} className="px-3 py-1 bg-gray-100 rounded hover:bg-gray-200 disabled:opacity-50 text-sm">Next</Button>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      <ResponsiveTable columns={columns} data={data.contributions} emptyMessage="No contributions yet" />
+      {data.totalPages > 1 && (
+        <div className="flex justify-center items-center space-x-2 p-4">
+          <Button isDisabled={data.page <= 1} onPress={() => setData(prev => ({ ...prev, page: prev.page - 1 }))} className="px-3 py-1 bg-gray-100 rounded hover:bg-gray-200 disabled:opacity-50 text-sm">Prev</Button>
+          <span className="text-sm text-gray-600">Page {data.page} of {data.totalPages}</span>
+          <Button isDisabled={data.page >= data.totalPages} onPress={() => setData(prev => ({ ...prev, page: prev.page + 1 }))} className="px-3 py-1 bg-gray-100 rounded hover:bg-gray-200 disabled:opacity-50 text-sm">Next</Button>
+        </div>
+      )}
     </div>
   );
 }
