@@ -13,8 +13,10 @@ export default function Reports() {
   const [total, setTotal] = useState(0);
   const [suspendTarget, setSuspendTarget] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const fetchData = async () => {
+    setLoading(true);
     try {
       const res = await apiFetch(`/campaigns/reported?page=${page}`);
       setReported(res.data);
@@ -22,6 +24,8 @@ export default function Reports() {
       setTotal(res.total);
     } catch (err) {
       toast.error('Failed to load reports');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -59,6 +63,12 @@ export default function Reports() {
       </div>
     )},
   ];
+
+  if (loading) return (
+    <div className="text-center py-12">
+      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-indigo-600 mx-auto"></div>
+    </div>
+  );
 
   return (
     <div>
