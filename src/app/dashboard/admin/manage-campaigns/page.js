@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { apiFetch } from '@/lib/api';
 import { toast } from 'react-toastify';
 import { format } from 'date-fns';
-import { Button } from '@heroui/react';
+import { Button, AlertDialog } from '@heroui/react';
 import ResponsiveTable from '@/components/ResponsiveTable';
 
 export default function ManageCampaigns() {
@@ -11,6 +11,9 @@ export default function ManageCampaigns() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
+  const [reportTarget, setReportTarget] = useState(null);
+  const [reportReason, setReportReason] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   const fetchCampaigns = async () => {
     try {
@@ -18,7 +21,9 @@ export default function ManageCampaigns() {
       setCampaigns(res.data);
       setTotalPages(res.totalPages);
       setTotal(res.total);
-    } catch (err) {}
+    } catch (err) {
+      toast.error('Failed to load campaigns');
+    }
   };
 
   useEffect(() => { fetchCampaigns(); }, [page]);
@@ -39,13 +44,28 @@ export default function ManageCampaigns() {
     } catch (err) { toast.error(err?.message || 'Failed'); }
   };
 
-  const handleDelete = async (id) => {
-    if (!confirm('Delete this campaign? Supporters will be refunded.')) return;
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
     try {
-      await apiFetch(`/campaigns/${id}/admin-delete`, { method: 'DELETE' });
+      await apiFetch(`/campaigns/${deleteTarget._id}/admin-delete`, { method: 'DELETE' });
       toast.success('Campaign deleted');
+      setDeleteTarget(null);
       fetchCampaigns();
     } catch (err) { toast.error(err?.message || 'Failed'); }
+  };
+
+  const confirmReport = async () => {
+    if (!reportTarget || !reportReason.trim()) return;
+    try {
+      await apiFetch(`/campaigns/${reportTarget._id}/report`, {
+        method: 'POST',
+        body: JSON.stringify({ reason: reportReason.trim() }),
+      });
+      toast.success('Campaign reported');
+      setReportTarget(null);
+      setReportReason('');
+      fetchCampaigns();
+    } catch (err) { toast.error(err?.message || 'Failed to report'); }
   };
 
   const columns = [
@@ -63,7 +83,8 @@ export default function ManageCampaigns() {
           <Button onPress={() => handleApprove(row._id)} className="px-3 py-1 bg-green-100 text-green-700 rounded hover:bg-green-200 text-xs">Approve</Button>
           <Button onPress={() => handleReject(row._id)} className="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 text-xs">Reject</Button>
         </>}
-        <Button onPress={() => handleDelete(row._id)} className="px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 text-xs">Delete</Button>
+        <Button onPress={() => setReportTarget(row)} className="px-3 py-1 bg-orange-100 text-orange-700 rounded hover:bg-orange-200 text-xs">Report</Button>
+        <Button onPress={() => setDeleteTarget(row)} className="px-3 py-1 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 text-xs">Delete</Button>
       </div>
     )},
   ];
@@ -73,6 +94,57 @@ export default function ManageCampaigns() {
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Manage Campaigns</h1>
       <ResponsiveTable columns={columns} data={campaigns} emptyMessage="No campaigns found"
         totalPages={totalPages} page={page} onPageChange={setPage} totalItems={total} />
+      {reportTarget && (
+        <AlertDialog isOpen onOpenChange={() => { setReportTarget(null); setReportReason(''); }}>
+          <AlertDialog.Backdrop>
+            <AlertDialog.Container>
+              <AlertDialog.Dialog>
+                <AlertDialog.CloseTrigger />
+                <AlertDialog.Header>
+                  <AlertDialog.Icon status="warning" />
+                  <AlertDialog.Heading>Report Campaign</AlertDialog.Heading>
+                </AlertDialog.Header>
+                <AlertDialog.Body>
+                  <p className="mb-3">Report <strong>{reportTarget.title}</strong> by {reportTarget.creatorName} as suspicious or fraudulent.</p>
+                  <textarea
+                    value={reportReason}
+                    onChange={(e) => setReportReason(e.target.value)}
+                    rows={4}
+                    className="w-full px-4 py-2 border rounded-lg outline-none resize-none"
+                    placeholder="Describe why this campaign is being reported..."
+                  />
+                </AlertDialog.Body>
+                <AlertDialog.Footer>
+                  <Button slot="close" variant="tertiary" onPress={() => { setReportTarget(null); setReportReason(''); }}>Cancel</Button>
+                  <Button variant="danger" onPress={confirmReport} isDisabled={!reportReason.trim()}>Submit Report</Button>
+                </AlertDialog.Footer>
+              </AlertDialog.Dialog>
+            </AlertDialog.Container>
+          </AlertDialog.Backdrop>
+        </AlertDialog>
+      )}
+      {deleteTarget && (
+        <AlertDialog isOpen onOpenChange={() => setDeleteTarget(null)}>
+          <AlertDialog.Backdrop>
+            <AlertDialog.Container>
+              <AlertDialog.Dialog>
+                <AlertDialog.CloseTrigger />
+                <AlertDialog.Header>
+                  <AlertDialog.Icon status="danger" />
+                  <AlertDialog.Heading>Delete campaign permanently?</AlertDialog.Heading>
+                </AlertDialog.Header>
+                <AlertDialog.Body>
+                  <p>This will permanently delete <strong>{deleteTarget.title}</strong> and refund all approved supporters. This action cannot be undone.</p>
+                </AlertDialog.Body>
+                <AlertDialog.Footer>
+                  <Button slot="close" variant="tertiary" onPress={() => setDeleteTarget(null)}>Cancel</Button>
+                  <Button variant="danger" onPress={confirmDelete}>Delete Campaign</Button>
+                </AlertDialog.Footer>
+              </AlertDialog.Dialog>
+            </AlertDialog.Container>
+          </AlertDialog.Backdrop>
+        </AlertDialog>
+      )}
     </div>
   );
 }
