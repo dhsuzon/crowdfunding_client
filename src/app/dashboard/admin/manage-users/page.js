@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { apiFetch } from '@/lib/api';
 import { toast } from 'react-toastify';
-import { Button } from '@heroui/react';
+import { Button, AlertDialog } from '@heroui/react';
 import ResponsiveTable from '@/components/ResponsiveTable';
 
 export default function ManageUsers() {
@@ -10,6 +10,7 @@ export default function ManageUsers() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   const fetchUsers = async () => {
     try {
@@ -37,11 +38,12 @@ export default function ManageUsers() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!confirm('Delete this user? This cannot be undone.')) return;
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
     try {
-      await apiFetch(`/users/${id}`, { method: 'DELETE' });
+      await apiFetch(`/users/${deleteTarget._id}`, { method: 'DELETE' });
       toast.success('User deleted');
+      setDeleteTarget(null);
       fetchUsers();
     } catch (err) {
       toast.error(err?.message || 'Failed to delete user');
@@ -61,7 +63,7 @@ export default function ManageUsers() {
     )},
     { key: 'credits', label: 'Credits', render: (v) => <span className="font-medium text-indigo-600">{v}</span> },
     { key: 'actions', label: 'Actions', render: (_, row) => (
-      <Button onPress={() => handleDelete(row._id)} className="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 text-xs">Remove</Button>
+      <Button onPress={() => setDeleteTarget(row)} className="px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 text-xs">Remove</Button>
     )},
   ];
 
@@ -70,6 +72,28 @@ export default function ManageUsers() {
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Manage Users</h1>
       <ResponsiveTable columns={columns} data={users} emptyMessage="No users found"
         totalPages={totalPages} page={page} onPageChange={setPage} totalItems={total} />
+      {deleteTarget && (
+        <AlertDialog isOpen onOpenChange={() => setDeleteTarget(null)}>
+          <AlertDialog.Backdrop>
+            <AlertDialog.Container>
+              <AlertDialog.Dialog>
+                <AlertDialog.CloseTrigger />
+                <AlertDialog.Header>
+                  <AlertDialog.Icon status="danger" />
+                  <AlertDialog.Heading>Delete user permanently?</AlertDialog.Heading>
+                </AlertDialog.Header>
+                <AlertDialog.Body>
+                  <p>This will permanently delete <strong>{deleteTarget.name}</strong> ({deleteTarget.email}) and all associated data. This action cannot be undone.</p>
+                </AlertDialog.Body>
+                <AlertDialog.Footer>
+                  <Button slot="close" variant="tertiary" onPress={() => setDeleteTarget(null)}>Cancel</Button>
+                  <Button variant="danger" onPress={confirmDelete}>Delete User</Button>
+                </AlertDialog.Footer>
+              </AlertDialog.Dialog>
+            </AlertDialog.Container>
+          </AlertDialog.Backdrop>
+        </AlertDialog>
+      )}
     </div>
   );
 }
