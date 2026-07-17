@@ -8,18 +8,18 @@ import ResponsiveTable from '@/components/ResponsiveTable';
 
 export default function ManageCampaigns() {
   const [campaigns, setCampaigns] = useState([]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   const fetchCampaigns = async () => {
     try {
-      const [pendingRes, allRes] = await Promise.all([
-        apiFetch('/campaigns/pending'),
-        apiFetch('/campaigns/all')
-      ]);
-      setCampaigns([...pendingRes, ...allRes.filter(c => c.status !== 'pending')]);
+      const res = await apiFetch(`/campaigns/all?page=${page}`);
+      setCampaigns(res.data);
+      setTotalPages(res.totalPages);
     } catch (err) {}
   };
 
-  useEffect(() => { fetchCampaigns(); }, []);
+  useEffect(() => { fetchCampaigns(); }, [page]);
 
   const handleApprove = async (id) => {
     try {
@@ -70,6 +70,13 @@ export default function ManageCampaigns() {
     <div>
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Manage Campaigns</h1>
       <ResponsiveTable columns={columns} data={campaigns} emptyMessage="No campaigns found" />
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center space-x-2 pt-4">
+          <button disabled={page <= 1} onClick={() => setPage(p => p - 1)} className="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50 text-sm">Prev</button>
+          <span className="text-sm text-gray-600">Page {page} of {totalPages}</span>
+          <button disabled={page >= totalPages} onClick={() => setPage(p => p + 1)} className="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50 text-sm">Next</button>
+        </div>
+      )}
     </div>
   );
 }

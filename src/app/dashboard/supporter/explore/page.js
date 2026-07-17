@@ -4,23 +4,26 @@ import Link from 'next/link';
 import { apiFetch } from '@/lib/api';
 import { format } from 'date-fns';
 import { toast } from 'react-toastify';
-import { Button, Card, CardContent } from '@heroui/react';
+import { Button, Card } from '@heroui/react';
 
 export default function ExploreCampaigns() {
   const [campaigns, setCampaigns] = useState([]);
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState('');
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     const params = new URLSearchParams();
     if (search) params.set('search', search);
     if (category) params.set('category', category);
+    params.set('page', page);
     apiFetch(`/campaigns?${params}`)
-      .then(res => setCampaigns(res))
+      .then(res => { setCampaigns(res.data); setTotalPages(res.totalPages); })
       .catch(() => toast.error('Failed to load campaigns'))
       .finally(() => setLoading(false));
-  }, [search, category]);
+  }, [search, category, page]);
 
   return (
     <div>
@@ -48,7 +51,7 @@ export default function ExploreCampaigns() {
               <div className="h-40 bg-gradient-to-br from-indigo-50 to-purple-50 flex items-center justify-center">
                 {c.imageURL ? <img src={c.imageURL} alt={c.title} className="w-full h-full object-cover" /> : <span className="text-3xl">🎯</span>}
               </div>
-              <CardContent className="p-5">
+              <Card.Content className="p-5">
                 <span className="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full">{c.category}</span>
                 <h3 className="font-semibold text-gray-900 mt-2 mb-1">{c.title}</h3>
                 <p className="text-sm text-gray-500 mb-2">by {c.creatorName}</p>
@@ -58,9 +61,16 @@ export default function ExploreCampaigns() {
                   <span className="text-sm text-gray-500">Goal: ${c.fundingGoal}</span>
                 </div>
                 <Link href={`/campaigns/${c._id}`} className="mt-3 block text-center bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition text-sm">View Details</Link>
-              </CardContent>
+              </Card.Content>
             </Card>
           ))}
+        </div>
+      )}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center space-x-2 py-8">
+          <button disabled={page <= 1} onClick={() => setPage(p => p - 1)} className="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50 text-sm">Prev</button>
+          <span className="text-sm text-gray-600">Page {page} of {totalPages}</span>
+          <button disabled={page >= totalPages} onClick={() => setPage(p => p + 1)} className="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50 text-sm">Next</button>
         </div>
       )}
     </div>

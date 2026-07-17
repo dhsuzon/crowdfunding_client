@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useSession } from '@/lib/auth-client';
 import { apiFetch } from '@/lib/api';
-import { Card, CardContent } from '@heroui/react';
+import { Card } from '@heroui/react';
 import { HiCash, HiClock, HiCheckCircle } from 'react-icons/hi';
 import { toast } from 'react-toastify';
 
@@ -38,7 +38,7 @@ export default function SupporterHome() {
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Supporter Dashboard</h1>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
         <Card className="border-l-4 border-indigo-500 shadow-sm">
-          <CardContent className="p-6">
+          <Card.Content className="p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500">Total Contributions</p>
@@ -46,10 +46,10 @@ export default function SupporterHome() {
               </div>
               <HiCash className="text-indigo-500 text-4xl" />
             </div>
-          </CardContent>
+          </Card.Content>
         </Card>
         <Card className="border-l-4 border-yellow-500 shadow-sm">
-          <CardContent className="p-6">
+          <Card.Content className="p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500">Pending Contributions</p>
@@ -57,10 +57,10 @@ export default function SupporterHome() {
               </div>
               <HiClock className="text-yellow-500 text-4xl" />
             </div>
-          </CardContent>
+          </Card.Content>
         </Card>
         <Card className="border-l-4 border-green-500 shadow-sm">
-          <CardContent className="p-6">
+          <Card.Content className="p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500">Amount Contributed</p>
@@ -68,16 +68,16 @@ export default function SupporterHome() {
               </div>
               <HiCheckCircle className="text-green-500 text-4xl" />
             </div>
-          </CardContent>
+          </Card.Content>
         </Card>
       </div>
       <Card className="shadow-sm">
-        <CardContent className="p-6">
+        <Card.Content className="p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Your Credits</h2>
           <p className="text-4xl font-bold text-indigo-600">{userProfile?.credits || 0}</p>
           <p className="text-sm text-gray-500 mt-1">Available credits to contribute</p>
-        </CardContent>
-      </Card>
+          </Card.Content>
+        </Card>
     </div>
   );
 }

@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiFetch } from '@/lib/api';
 import { toast } from 'react-toastify';
-import { Button, Card, CardContent } from '@heroui/react';
+import { Button, Card } from '@heroui/react';
 
 export default function AddCampaign() {
   const router = useRouter();
@@ -38,7 +38,7 @@ export default function AddCampaign() {
     <div className="max-w-3xl mx-auto">
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Add New Campaign</h1>
       <Card>
-        <CardContent className="p-6 space-y-4">
+        <Card.Content className="p-6 space-y-4">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Campaign Title *</label>
@@ -85,7 +85,7 @@ export default function AddCampaign() {
               {loading ? 'Creating Campaign...' : 'Add Campaign'}
             </Button>
           </form>
-        </CardContent>
+        </Card.Content>
       </Card>
     </div>
   );

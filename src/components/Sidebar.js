@@ -25,7 +25,8 @@ export default function Sidebar({ isMobileOpen, onMobileClose }) {
     { href: '/dashboard/creator/add-campaign', label: 'Add New Campaign', icon: HiPlusCircle },
     { href: '/dashboard/creator/my-campaigns', label: 'My Campaigns', icon: HiCollection },
     { href: '/dashboard/creator/withdrawals', label: 'Withdrawals', icon: HiCash },
-    { href: '/dashboard/creator/payment-history', label: 'Payment History', icon: HiDocumentReport },
+    { href: '/dashboard/creator/withdrawal-history', label: 'Withdrawal History', icon: HiDocumentReport },
+    { href: '/dashboard/creator/payment-history', label: 'Payment History', icon: HiCreditCard },
   ];
 
   const adminLinks = [

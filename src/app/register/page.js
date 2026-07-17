@@ -6,7 +6,7 @@ import { signUp } from '@/lib/auth-client';
 import { toast } from 'react-toastify';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { Button, Input, InputGroup, TextField, Label, FieldError, Select, SelectTrigger, SelectValue, SelectPopover, Form, Card, CardContent } from '@heroui/react';
+import { Button, Input, InputGroup, TextField, Label, FieldError, Select, SelectTrigger, SelectValue, SelectPopover, Form, Card } from '@heroui/react';
 import { ListBox, ListBoxItem } from 'react-aria-components';
 import { HiEye, HiEyeOff } from 'react-icons/hi';
 
@@ -77,7 +77,7 @@ export default function RegisterPage() {
       <Navbar />
       <div className="min-h-screen flex items-center justify-center bg-gray-50 pt-16 px-4 py-8">
         <Card className="w-full max-w-md shadow-lg">
-          <CardContent className="p-8">
+          <Card.Content className="p-8">
           <h2 className="text-2xl font-bold text-center text-gray-900 mb-6">Create Account</h2>
           <Form onSubmit={handleSubmit} className="space-y-5">
             <TextField value={form.name} onChange={(v) => setForm({ ...form, name: v })} isInvalid={!!errors.name} className="flex flex-col gap-1">
@@ -127,7 +127,7 @@ export default function RegisterPage() {
           <p className="text-center text-sm text-gray-500 mt-6">
             Already have an account? <Link href="/login" className="text-indigo-600 hover:underline">Sign In</Link>
           </p>
-          </CardContent>
+          </Card.Content>
         </Card>
       </div>
       <Footer />

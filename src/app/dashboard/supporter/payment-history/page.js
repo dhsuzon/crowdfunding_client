@@ -11,7 +11,7 @@ export default function SupporterPaymentHistory() {
 
   useEffect(() => {
     if (session?.user?.email) {
-      apiFetch(`/payments/${session.user.email}`).then(res => setPayments(res)).catch(() => {});
+      apiFetch(`/payments/${session.user.email}`).then(res => setPayments(res.data)).catch(() => {});
     }
   }, [session?.user?.email]);
 

@@ -7,7 +7,7 @@ import { useSession } from '@/lib/auth-client';
 import { apiFetch } from '@/lib/api';
 import { toast } from 'react-toastify';
 import { format } from 'date-fns';
-import { Button, Card, CardContent, CardHeader, CardTitle } from '@heroui/react';
+import { Button, Card } from '@heroui/react';
 
 export default function CampaignDetails() {
   const { id } = useParams();
@@ -64,7 +64,7 @@ export default function CampaignDetails() {
             <div className="h-64 md:h-80 bg-gradient-to-br from-indigo-100 to-purple-100 flex items-center justify-center">
               {campaign.imageURL ? <img src={campaign.imageURL} alt={campaign.title} className="w-full h-full object-cover" /> : <span className="text-6xl">🎯</span>}
             </div>
-            <CardContent className="p-6 md:p-8">
+            <Card.Content className="p-6 md:p-8">
               <div className="flex flex-wrap items-center gap-2 mb-4">
                 <span className="bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full text-sm">{campaign.category}</span>
                 <span className={`px-3 py-1 rounded-full text-sm ${campaign.status === 'approved' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>{campaign.status}</span>
@@ -114,7 +114,7 @@ export default function CampaignDetails() {
                   </div>
                 </form>
               )}
-            </CardContent>
+            </Card.Content>
           </Card>
         </div>
       </div>

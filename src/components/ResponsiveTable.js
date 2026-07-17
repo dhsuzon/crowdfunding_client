@@ -1,28 +1,34 @@
 'use client';
-import { Card, CardContent } from '@heroui/react';
+import { Card } from '@heroui/react';
+import PaginationBar from './PaginationBar';
 
-export default function ResponsiveTable({ columns, data, emptyMessage = 'No data', emptyColSpan }) {
+export default function ResponsiveTable({ columns, data, emptyMessage = 'No data', emptyColSpan, totalPages, page, onPageChange }) {
+  const hasPagination = totalPages !== undefined && page !== undefined && onPageChange;
+
   if (!data || data.length === 0) {
     return (
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead className="bg-gray-50">
-            <tr>
-              {columns.map((col, i) => (
-                <th key={i} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{col.label}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-200">
-            <tr><td colSpan={emptyColSpan || columns.length} className="px-6 py-8 text-center text-gray-500">{emptyMessage}</td></tr>
-          </tbody>
-        </table>
+      <div>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50">
+              <tr>
+                {columns.map((col, i) => (
+                  <th key={i} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{col.label}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              <tr><td colSpan={emptyColSpan || columns.length} className="px-6 py-8 text-center text-gray-500">{emptyMessage}</td></tr>
+            </tbody>
+          </table>
+        </div>
+        {hasPagination && <PaginationBar total={totalPages} page={page} onChange={onPageChange} />}
       </div>
     );
   }
 
   return (
-    <>
+    <div>
       <div className="hidden md:block overflow-x-auto">
         <table className="w-full">
           <thead className="bg-gray-50">
@@ -47,25 +53,44 @@ export default function ResponsiveTable({ columns, data, emptyMessage = 'No data
       </div>
 
       <div className="md:hidden grid grid-cols-1 gap-4">
-        {data.map((row, rowIdx) => (
-          <Card key={row._id || rowIdx} className="shadow-sm mx-auto w-full max-w-md">
-            <CardContent className="p-4">
-              <div className="space-y-3">
-                {columns.map((col, colIdx) => {
-                  const rendered = col.render ? col.render(row[col.key], row) : row[col.key];
-                  if (rendered === null || rendered === undefined) return null;
+        {data.map((row, rowIdx) => {
+          const titleCol = columns.find(c => c.label && c.key && !c.hideLabel);
+          const actionCol = columns.find(c => !c.label || c.label === 'Actions');
+          const detailCols = columns.filter(c => c !== titleCol && c !== actionCol && c.label);
+          return (
+            <Card key={row._id || rowIdx} className="shadow-sm mx-auto w-full max-w-md">
+              {titleCol && (
+                <Card.Header className="border-b px-4 py-3">
+                  <div className="flex items-center justify-between w-full">
+                    <Card.Title className="text-sm font-semibold text-gray-900 truncate">
+                      {titleCol.render ? titleCol.render(row[titleCol.key], row) : row[titleCol.key]}
+                    </Card.Title>
+                  </div>
+                </Card.Header>
+              )}
+              <Card.Content className="px-4 py-3 space-y-2">
+                {detailCols.map(col => {
+                  const value = col.render ? col.render(row[col.key], row) : row[col.key];
+                  if (value === null || value === undefined) return null;
                   return (
-                    <div key={colIdx} className={col.label ? 'flex items-center justify-between' : 'flex justify-end'}>
-                      {col.label && <span className="text-xs font-medium text-gray-500 uppercase">{col.label}</span>}
-                      <span className={`text-sm text-right ${col.label ? '' : 'w-full'}`}>{rendered}</span>
+                    <div key={col.key} className="flex items-center justify-between">
+                      <span className="text-xs font-medium text-gray-500 uppercase">{col.label}</span>
+                      <span className="text-sm text-right ml-2">{value}</span>
                     </div>
                   );
                 })}
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+              </Card.Content>
+              {actionCol && (
+                <Card.Footer className="border-t px-4 py-3 flex justify-end gap-2">
+                  {actionCol.render ? actionCol.render(null, row) : null}
+                </Card.Footer>
+              )}
+            </Card>
+          );
+        })}
       </div>
-    </>
+
+      {hasPagination && <PaginationBar total={totalPages} page={page} onChange={onPageChange} />}
+    </div>
   );
 }

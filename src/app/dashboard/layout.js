@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Sidebar from '@/components/Sidebar';
+import Footer from '@/components/Footer';
 import NotificationPopover from '@/components/NotificationPopover';
 import { HiLogout, HiMenu } from 'react-icons/hi';
 import { signOut } from '@/lib/auth-client';
@@ -50,9 +51,7 @@ export default function DashboardLayout({ children }) {
         <main className="flex-1 p-3 md:p-8 overflow-y-auto">
           {children}
         </main>
-        <footer className="bg-white border-t px-6 py-4 text-center text-sm text-gray-500">
-          &copy; {new Date().getFullYear()} CrowdFundHub. All rights reserved.
-        </footer>
+        <Footer />
       </div>
     </div>
   );

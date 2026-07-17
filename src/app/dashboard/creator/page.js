@@ -4,7 +4,7 @@ import { useSession } from '@/lib/auth-client';
 import { apiFetch } from '@/lib/api';
 import { toast } from 'react-toastify';
 import { format } from 'date-fns';
-import { Button, Card, CardContent } from '@heroui/react';
+import { Button, Card } from '@heroui/react';
 import ResponsiveTable from '@/components/ResponsiveTable';
 import { HiCash, HiCheckCircle, HiEye } from 'react-icons/hi';
 
@@ -18,11 +18,11 @@ export default function CreatorHome() {
   const fetchData = async () => {
     try {
       const [campRes, contribRes] = await Promise.all([
-        apiFetch('/campaigns/my'),
-        apiFetch(`/contributions/pending/${session?.user?.email}`)
+        apiFetch('/campaigns/my?limit=10000'),
+        apiFetch(`/contributions/pending/${session?.user?.email}?limit=10000`)
       ]);
-      setCampaigns(campRes);
-      setPendingContributions(contribRes);
+      setCampaigns(campRes.data);
+      setPendingContributions(contribRes.data);
     } catch (err) {
       toast.error('Failed to load dashboard data');
     } finally {
@@ -62,7 +62,7 @@ export default function CreatorHome() {
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Creator Dashboard</h1>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
         <Card className="border-l-4 border-indigo-500 shadow-sm">
-          <CardContent className="p-6">
+          <Card.Content className="p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500">Total Campaigns</p>
@@ -70,10 +70,10 @@ export default function CreatorHome() {
               </div>
               <HiCash className="text-indigo-500 text-4xl" />
             </div>
-          </CardContent>
+          </Card.Content>
         </Card>
         <Card className="border-l-4 border-green-500 shadow-sm">
-          <CardContent className="p-6">
+          <Card.Content className="p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500">Active Campaigns</p>
@@ -81,10 +81,10 @@ export default function CreatorHome() {
               </div>
               <HiCheckCircle className="text-green-500 text-4xl" />
             </div>
-          </CardContent>
+          </Card.Content>
         </Card>
         <Card className="border-l-4 border-purple-500 shadow-sm">
-          <CardContent className="p-6">
+          <Card.Content className="p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500">Total Raised</p>
@@ -92,11 +92,11 @@ export default function CreatorHome() {
               </div>
               <HiCash className="text-purple-500 text-4xl" />
             </div>
-          </CardContent>
+          </Card.Content>
         </Card>
       </div>
       <Card className="shadow-sm mb-8">
-        <CardContent className="p-6">
+        <Card.Content className="p-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">Contributions To Review ({pendingContributions.length})</h2>
           {(() => {
             const contribColumns = [
@@ -114,7 +114,7 @@ export default function CreatorHome() {
             ];
             return <ResponsiveTable columns={contribColumns} data={pendingContributions} emptyMessage="No pending contributions" />;
           })()}
-        </CardContent>
+        </Card.Content>
       </Card>
       {selectedContribution && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setSelectedContribution(null)}>

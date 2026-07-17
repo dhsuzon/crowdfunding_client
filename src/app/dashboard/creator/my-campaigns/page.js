@@ -3,25 +3,28 @@ import { useState, useEffect } from 'react';
 import { apiFetch } from '@/lib/api';
 import { toast } from 'react-toastify';
 import { format } from 'date-fns';
-import { Button, Card, CardContent } from '@heroui/react';
+import { Button, Card } from '@heroui/react';
 import ResponsiveTable from '@/components/ResponsiveTable';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 
 export default function MyCampaigns() {
   const [campaigns, setCampaigns] = useState([]);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [editing, setEditing] = useState(null);
   const [editForm, setEditForm] = useState({ title: '', story: '', rewardInfo: '' });
 
   const fetchCampaigns = async () => {
     try {
-      const res = await apiFetch('/campaigns/my');
-      setCampaigns(res);
+      const res = await apiFetch(`/campaigns/my?page=${page}`);
+      setCampaigns(res.data);
+      setTotalPages(res.totalPages);
     } catch (err) {
       toast.error('Failed to load campaigns');
     }
   };
 
-  useEffect(() => { fetchCampaigns(); }, []);
+  useEffect(() => { fetchCampaigns(); }, [page]);
 
   const handleDelete = async (id) => {
     if (!confirm('Delete this campaign? Approved supporters will be refunded.')) return;
@@ -74,10 +77,17 @@ export default function MyCampaigns() {
     <div>
       <h1 className="text-2xl font-bold text-gray-900 mb-6">My Campaigns</h1>
       <ResponsiveTable columns={columns} data={campaigns} emptyMessage="No campaigns yet" />
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center space-x-2 pt-4 pb-4">
+          <button disabled={page <= 1} onClick={() => setPage(p => p - 1)} className="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50 text-sm">Prev</button>
+          <span className="text-sm text-gray-600">Page {page} of {totalPages}</span>
+          <button disabled={page >= totalPages} onClick={() => setPage(p => p + 1)} className="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50 text-sm">Next</button>
+        </div>
+      )}
       {editing && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50" onClick={() => setEditing(null)}>
           <Card className="max-w-lg w-full mx-4" onClick={(e) => e.stopPropagation()}>
-            <CardContent className="p-6">
+            <Card.Content className="p-6">
               <h3 className="text-lg font-semibold mb-4">Update Campaign</h3>
               <div className="space-y-3">
                 <input type="text" value={editForm.title} onChange={(e) => setEditForm({ ...editForm, title: e.target.value })} className="w-full px-4 py-2 border rounded-lg outline-none" placeholder="Title" />
@@ -88,7 +98,7 @@ export default function MyCampaigns() {
                 <Button onPress={() => handleUpdate(editing)} className="flex-1 bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700">Save</Button>
                 <Button onPress={() => setEditing(null)} className="flex-1 bg-gray-200 py-2 rounded-lg hover:bg-gray-300">Cancel</Button>
               </div>
-            </CardContent>
+            </Card.Content>
           </Card>
         </div>
       )}

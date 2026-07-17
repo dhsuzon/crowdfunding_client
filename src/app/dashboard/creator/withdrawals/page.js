@@ -1,33 +1,26 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useSession } from '@/lib/auth-client';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { apiFetch } from '@/lib/api';
 import { toast } from 'react-toastify';
-import { format } from 'date-fns';
-import { Button, Card, CardContent } from '@heroui/react';
-import ResponsiveTable from '@/components/ResponsiveTable';
+import { Button, Card } from '@heroui/react';
 
 export default function Withdrawals() {
   const { data: session } = useSession();
-  const [withdrawals, setWithdrawals] = useState([]);
+  const router = useRouter();
   const [userProfile, setUserProfile] = useState(null);
   const [form, setForm] = useState({ withdrawalCredits: '', paymentSystem: 'Stripe', accountNumber: '' });
   const [loading, setLoading] = useState(false);
 
-  const fetchData = () => {
-    if (!session?.user?.email) return;
-    Promise.all([
-      apiFetch(`/withdrawals/my/${session.user.email}`),
-      apiFetch('/users/me'),
-    ])
-      .then(([wRes, uRes]) => {
-        setWithdrawals(wRes);
-        setUserProfile(uRes);
-      })
-      .catch(() => {});
-  };
-
-  useEffect(() => { fetchData(); }, [session?.user?.email]);
+  useEffect(() => {
+    if (session?.user?.email) {
+      apiFetch('/users/me')
+        .then(u => setUserProfile(u))
+        .catch(() => {});
+    }
+  }, [session?.user?.email]);
 
   const totalRaised = userProfile?.totalRaisedCredits || 0;
   const withdrawalAmount = form.withdrawalCredits ? Number(form.withdrawalCredits) / 20 : 0;
@@ -44,7 +37,7 @@ export default function Withdrawals() {
       });
       toast.success('Withdrawal request submitted!');
       setForm({ withdrawalCredits: '', paymentSystem: 'Stripe', accountNumber: '' });
-      fetchData();
+      router.push('/dashboard/creator/withdrawal-history');
     } catch (err) {
       toast.error(err?.message || 'Withdrawal failed');
     } finally {
@@ -57,16 +50,16 @@ export default function Withdrawals() {
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Withdrawals</h1>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <Card className="shadow-sm">
-          <CardContent className="p-6">
+          <Card.Content className="p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-2">Your Earnings</h2>
             <p className="text-3xl font-bold text-indigo-600">{totalRaised}</p>
             <p className="text-sm text-gray-500">Total Raised Credits</p>
             <p className="text-2xl font-bold text-green-600 mt-2">${(totalRaised / 20).toFixed(2)}</p>
             <p className="text-sm text-gray-500">Withdrawal Amount (20 credits = $1)</p>
-          </CardContent>
+          </Card.Content>
         </Card>
         <Card className="shadow-sm">
-          <CardContent className="p-6">
+          <Card.Content className="p-6">
             <h2 className="text-lg font-semibold text-gray-900 mb-4">Request Withdrawal</h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
@@ -95,27 +88,12 @@ export default function Withdrawals() {
                 <p className="text-center text-red-500 text-sm font-medium">Insufficient credit. Minimum 200 credits required.</p>
               )}
             </form>
-          </CardContent>
+          </Card.Content>
         </Card>
       </div>
-      <Card className="shadow-sm">
-        <CardContent className="p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Withdrawal History</h2>
-          {(() => {
-            const historyColumns = [
-              { key: 'withdrawalCredits', label: 'Credits' },
-              { key: 'withdrawalAmount', label: 'Amount ($)', render: (v) => <span className="font-medium text-green-600">${v.toFixed(2)}</span> },
-              { key: 'paymentSystem', label: 'Payment' },
-              { key: 'accountNumber', label: 'Account' },
-              { key: 'status', label: 'Status', render: (v) => (
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${v === 'approved' ? 'bg-green-100 text-green-700' : v === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>{v}</span>
-              )},
-              { key: 'createdAt', label: 'Date', render: (v) => format(new Date(v), 'MMM dd, yyyy') },
-            ];
-            return <ResponsiveTable columns={historyColumns} data={withdrawals} emptyMessage="No withdrawal history yet" />;
-          })()}
-        </CardContent>
-      </Card>
+      <div className="text-center">
+        <Link href="/dashboard/creator/withdrawal-history" className="text-indigo-600 hover:text-indigo-800 text-sm font-medium">View Withdrawal History &rarr;</Link>
+      </div>
     </div>
   );
 }

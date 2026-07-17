@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { apiFetch } from '@/lib/api';
 import { toast } from 'react-toastify';
-import { Card, CardContent } from '@heroui/react';
+import { Card } from '@heroui/react';
 import { HiUserGroup, HiUserAdd, HiCash, HiCreditCard } from 'react-icons/hi';
 
 export default function AdminHome() {
@@ -10,8 +10,8 @@ export default function AdminHome() {
   const [payments, setPayments] = useState([]);
 
   useEffect(() => {
-    apiFetch('/users').then(res => setUsers(res)).catch(() => toast.error('Failed to load users'));
-    apiFetch('/payments/admin/all').then(res => setPayments(res)).catch(() => toast.error('Failed to load payments'));
+    apiFetch('/users?limit=10000').then(res => setUsers(res.data)).catch(() => toast.error('Failed to load users'));
+    apiFetch('/payments/admin/all?limit=10000').then(res => setPayments(res.data)).catch(() => toast.error('Failed to load payments'));
   }, []);
 
   const supporters = users.filter(u => u.role === 'supporter').length;
@@ -24,7 +24,7 @@ export default function AdminHome() {
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Admin Dashboard</h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <Card className="border-l-4 border-blue-500 shadow-sm">
-          <CardContent className="p-6">
+          <Card.Content className="p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500">Total Supporters</p>
@@ -32,10 +32,10 @@ export default function AdminHome() {
               </div>
               <HiUserGroup className="text-blue-500 text-4xl" />
             </div>
-          </CardContent>
+          </Card.Content>
         </Card>
         <Card className="border-l-4 border-purple-500 shadow-sm">
-          <CardContent className="p-6">
+          <Card.Content className="p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500">Total Creators</p>
@@ -43,10 +43,10 @@ export default function AdminHome() {
               </div>
               <HiUserAdd className="text-purple-500 text-4xl" />
             </div>
-          </CardContent>
+          </Card.Content>
         </Card>
         <Card className="border-l-4 border-green-500 shadow-sm">
-          <CardContent className="p-6">
+          <Card.Content className="p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500">Total Credits</p>
@@ -54,10 +54,10 @@ export default function AdminHome() {
               </div>
               <HiCash className="text-green-500 text-4xl" />
             </div>
-          </CardContent>
+          </Card.Content>
         </Card>
         <Card className="border-l-4 border-indigo-500 shadow-sm">
-          <CardContent className="p-6">
+          <Card.Content className="p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500">Payments Processed</p>
@@ -65,7 +65,7 @@ export default function AdminHome() {
               </div>
               <HiCreditCard className="text-indigo-500 text-4xl" />
             </div>
-          </CardContent>
+          </Card.Content>
         </Card>
       </div>
     </div>

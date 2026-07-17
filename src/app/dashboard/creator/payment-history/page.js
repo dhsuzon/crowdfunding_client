@@ -11,7 +11,7 @@ export default function CreatorPaymentHistory() {
 
   useEffect(() => {
     if (session?.user?.email) {
-      apiFetch(`/withdrawals/my/${session.user.email}`).then(res => setWithdrawals(res)).catch(() => {});
+      apiFetch(`/withdrawals/my/${session.user.email}`).then(res => setWithdrawals(res.data)).catch(() => {});
     }
   }, [session?.user?.email]);
 

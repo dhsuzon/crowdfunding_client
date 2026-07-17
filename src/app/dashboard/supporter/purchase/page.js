@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useSession } from '@/lib/auth-client';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
-import { Button, Card, CardContent } from '@heroui/react';
+import { Button, Card } from '@heroui/react';
 
 const packages = [
   { credits: 50, price: 6 },
@@ -81,7 +81,7 @@ export default function PurchaseCredit() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {packages.map((pkg) => (
           <Card key={pkg.credits} className="text-center border-2 border-transparent hover:border-indigo-500 transition">
-            <CardContent className="p-6">
+            <Card.Content className="p-6">
               <p className="text-4xl font-bold text-indigo-600 mb-2">{pkg.credits}</p>
               <p className="text-sm text-gray-500 mb-1">Credits</p>
               <p className="text-2xl font-bold text-gray-900 mb-4">${pkg.price}</p>
@@ -89,7 +89,7 @@ export default function PurchaseCredit() {
               <Button onPress={() => handlePurchase(pkg)} isDisabled={loading === pkg.credits} className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 font-medium disabled:opacity-50">
                 {loading === pkg.credits ? 'Processing...' : 'Purchase'}
               </Button>
-            </CardContent>
+            </Card.Content>
           </Card>
         ))}
       </div>
