@@ -2,7 +2,7 @@
 import { Card } from '@heroui/react';
 import PaginationBar from './PaginationBar';
 
-export default function ResponsiveTable({ columns, data, emptyMessage = 'No data', emptyColSpan, totalPages, page, onPageChange }) {
+export default function ResponsiveTable({ columns, data, emptyMessage = 'No data', emptyColSpan, totalPages, page, onPageChange, totalItems }) {
   const hasPagination = totalPages !== undefined && page !== undefined && onPageChange;
 
   if (!data || data.length === 0) {
@@ -22,7 +22,7 @@ export default function ResponsiveTable({ columns, data, emptyMessage = 'No data
             </tbody>
           </table>
         </div>
-        {hasPagination && <PaginationBar total={totalPages} page={page} onChange={onPageChange} />}
+        {hasPagination && <PaginationBar total={totalPages} page={page} onChange={onPageChange} totalItems={totalItems} />}
       </div>
     );
   }
@@ -90,7 +90,7 @@ export default function ResponsiveTable({ columns, data, emptyMessage = 'No data
         })}
       </div>
 
-      {hasPagination && <PaginationBar total={totalPages} page={page} onChange={onPageChange} />}
+      {hasPagination && <PaginationBar total={totalPages} page={page} onChange={onPageChange} totalItems={totalItems} />}
     </div>
   );
 }

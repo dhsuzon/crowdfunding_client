@@ -10,12 +10,14 @@ export default function Reports() {
   const [reported, setReported] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
 
   const fetchData = async () => {
     try {
       const res = await apiFetch(`/campaigns/reported?page=${page}`);
       setReported(res.data);
       setTotalPages(res.totalPages);
+      setTotal(res.total);
     } catch (err) {}
   };
 
@@ -54,14 +56,8 @@ export default function Reports() {
   return (
     <div>
       <h1 className="text-2xl font-bold text-gray-900 mb-6">Reports</h1>
-      <ResponsiveTable columns={columns} data={reported} emptyMessage="No reported campaigns" />
-      {totalPages > 1 && (
-        <div className="flex justify-center items-center space-x-2 pt-4">
-          <button disabled={page <= 1} onClick={() => setPage(p => p - 1)} className="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50 text-sm">Prev</button>
-          <span className="text-sm text-gray-600">Page {page} of {totalPages}</span>
-          <button disabled={page >= totalPages} onClick={() => setPage(p => p + 1)} className="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50 text-sm">Next</button>
-        </div>
-      )}
+      <ResponsiveTable columns={columns} data={reported} emptyMessage="No reported campaigns"
+        totalPages={totalPages} page={page} onPageChange={setPage} totalItems={total} />
     </div>
   );
 }

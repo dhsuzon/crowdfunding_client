@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 import { useSession } from '@/lib/auth-client';
 import { apiFetch } from '@/lib/api';
 import { format } from 'date-fns';
-import { Button, Card } from '@heroui/react';
 import ResponsiveTable from '@/components/ResponsiveTable';
 import Link from 'next/link';
 
@@ -12,11 +11,12 @@ export default function WithdrawalHistory() {
   const [withdrawals, setWithdrawals] = useState([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
 
   useEffect(() => {
     if (session?.user?.email) {
       apiFetch(`/withdrawals/my/${session.user.email}?page=${page}`)
-        .then(res => { setWithdrawals(res.data); setTotalPages(res.totalPages); })
+        .then(res => { setWithdrawals(res.data); setTotalPages(res.totalPages); setTotal(res.total); })
         .catch(() => {});
     }
   }, [session?.user?.email, page]);
@@ -38,14 +38,8 @@ export default function WithdrawalHistory() {
         <h1 className="text-2xl font-bold text-gray-900">Withdrawal History</h1>
         <Link href="/dashboard/creator/withdrawals" className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 text-sm font-medium">Request Withdrawal</Link>
       </div>
-      <ResponsiveTable columns={columns} data={withdrawals} emptyMessage="No withdrawal history yet" />
-      {totalPages > 1 && (
-        <div className="flex justify-center items-center space-x-2 pt-4">
-          <button disabled={page <= 1} onClick={() => setPage(p => p - 1)} className="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50 text-sm">Prev</button>
-          <span className="text-sm text-gray-600">Page {page} of {totalPages}</span>
-          <button disabled={page >= totalPages} onClick={() => setPage(p => p + 1)} className="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50 text-sm">Next</button>
-        </div>
-      )}
+      <ResponsiveTable columns={columns} data={withdrawals} emptyMessage="No withdrawal history yet"
+        totalPages={totalPages} page={page} onPageChange={setPage} totalItems={total} />
     </div>
   );
 }

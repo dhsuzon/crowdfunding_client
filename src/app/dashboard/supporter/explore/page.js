@@ -5,6 +5,7 @@ import { apiFetch } from '@/lib/api';
 import { format } from 'date-fns';
 import { toast } from 'react-toastify';
 import { Button, Card } from '@heroui/react';
+import PaginationBar from '@/components/PaginationBar';
 
 export default function ExploreCampaigns() {
   const [campaigns, setCampaigns] = useState([]);
@@ -13,6 +14,7 @@ export default function ExploreCampaigns() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [total, setTotal] = useState(0);
 
   useEffect(() => {
     const params = new URLSearchParams();
@@ -20,7 +22,7 @@ export default function ExploreCampaigns() {
     if (category) params.set('category', category);
     params.set('page', page);
     apiFetch(`/campaigns?${params}`)
-      .then(res => { setCampaigns(res.data); setTotalPages(res.totalPages); })
+      .then(res => { setCampaigns(res.data); setTotalPages(res.totalPages); setTotal(res.total); })
       .catch(() => toast.error('Failed to load campaigns'))
       .finally(() => setLoading(false));
   }, [search, category, page]);
@@ -66,13 +68,7 @@ export default function ExploreCampaigns() {
           ))}
         </div>
       )}
-      {totalPages > 1 && (
-        <div className="flex justify-center items-center space-x-2 py-8">
-          <button disabled={page <= 1} onClick={() => setPage(p => p - 1)} className="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50 text-sm">Prev</button>
-          <span className="text-sm text-gray-600">Page {page} of {totalPages}</span>
-          <button disabled={page >= totalPages} onClick={() => setPage(p => p + 1)} className="px-4 py-2 bg-gray-100 rounded-lg hover:bg-gray-200 disabled:opacity-50 text-sm">Next</button>
-        </div>
-      )}
+      <PaginationBar total={totalPages} page={page} onChange={setPage} totalItems={total} />
     </div>
   );
 }

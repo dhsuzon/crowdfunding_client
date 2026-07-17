@@ -11,7 +11,7 @@ export default function MyContributions() {
   const [data, setData] = useState({ contributions: [], total: 0, page: 1, totalPages: 1 });
 
   useEffect(() => {
-    apiFetch(`/contributions/my?page=${data.page}&limit=10`)
+    apiFetch(`/contributions/my?page=${data.page}&limit=8`)
       .then(res => setData(res))
       .catch(() => {});
   }, [data.page]);
@@ -29,14 +29,8 @@ export default function MyContributions() {
   return (
     <div>
       <h1 className="text-2xl font-bold text-gray-900 mb-6">My Contributions</h1>
-      <ResponsiveTable columns={columns} data={data.contributions} emptyMessage="No contributions yet" />
-      {data.totalPages > 1 && (
-        <div className="flex justify-center items-center space-x-2 p-4">
-          <Button isDisabled={data.page <= 1} onPress={() => setData(prev => ({ ...prev, page: prev.page - 1 }))} className="px-3 py-1 bg-gray-100 rounded hover:bg-gray-200 disabled:opacity-50 text-sm">Prev</Button>
-          <span className="text-sm text-gray-600">Page {data.page} of {data.totalPages}</span>
-          <Button isDisabled={data.page >= data.totalPages} onPress={() => setData(prev => ({ ...prev, page: prev.page + 1 }))} className="px-3 py-1 bg-gray-100 rounded hover:bg-gray-200 disabled:opacity-50 text-sm">Next</Button>
-        </div>
-      )}
+      <ResponsiveTable columns={columns} data={data.contributions} emptyMessage="No contributions yet"
+        totalPages={data.totalPages} page={data.page} onPageChange={(p) => setData(prev => ({ ...prev, page: p }))} totalItems={data.total} />
     </div>
   );
 }

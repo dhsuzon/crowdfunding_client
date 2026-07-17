@@ -6,23 +6,29 @@ import { toast } from 'react-toastify';
 import { format } from 'date-fns';
 import { Button, Card } from '@heroui/react';
 import ResponsiveTable from '@/components/ResponsiveTable';
-import { HiCash, HiCheckCircle, HiEye } from 'react-icons/hi';
+import { HiCash, HiCheckCircle, HiEye, HiCurrencyDollar, HiBadgeCheck } from 'react-icons/hi';
 
 export default function CreatorHome() {
   const { data: session } = useSession();
+  const [userData, setUserData] = useState(null);
   const [campaigns, setCampaigns] = useState([]);
   const [pendingContributions, setPendingContributions] = useState([]);
+  const [withdrawals, setWithdrawals] = useState([]);
   const [selectedContribution, setSelectedContribution] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const fetchData = async () => {
     try {
-      const [campRes, contribRes] = await Promise.all([
+      const [userRes, campRes, contribRes, withdrawRes] = await Promise.all([
+        apiFetch('/users/me'),
         apiFetch('/campaigns/my?limit=10000'),
-        apiFetch(`/contributions/pending/${session?.user?.email}?limit=10000`)
+        apiFetch(`/contributions/pending/${session?.user?.email}?limit=10000`),
+        apiFetch(`/withdrawals/my/${session?.user?.email}?limit=10000`)
       ]);
+      setUserData(userRes);
       setCampaigns(campRes.data);
       setPendingContributions(contribRes.data);
+      setWithdrawals(withdrawRes.data);
     } catch (err) {
       toast.error('Failed to load dashboard data');
     } finally {
@@ -34,6 +40,12 @@ export default function CreatorHome() {
 
   const activeCampaigns = campaigns.filter(c => new Date(c.deadline) > new Date()).length;
   const totalRaised = campaigns.reduce((sum, c) => sum + c.amountRaised, 0);
+  const netRaisedCredits = userData?.totalRaisedCredits || 0;
+  const withdrawalAmount = (netRaisedCredits / 20).toFixed(2);
+  const paymentTotal = withdrawals
+    .filter(w => w.status === 'approved')
+    .reduce((sum, w) => sum + (w.withdrawalAmount || 0), 0)
+    .toFixed(2);
 
   const handleApprove = async (id) => {
     try {
@@ -91,6 +103,39 @@ export default function CreatorHome() {
                 <p className="text-3xl font-bold text-purple-600">{totalRaised} Credits</p>
               </div>
               <HiCash className="text-purple-500 text-4xl" />
+            </div>
+          </Card.Content>
+        </Card>
+        <Card className="border-l-4 border-orange-500 shadow-sm">
+          <Card.Content className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500">Net Raised Credits</p>
+                <p className="text-3xl font-bold text-orange-600">{netRaisedCredits}</p>
+              </div>
+              <HiCash className="text-orange-500 text-4xl" />
+            </div>
+          </Card.Content>
+        </Card>
+        <Card className="border-l-4 border-teal-500 shadow-sm">
+          <Card.Content className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500">Withdrawal Amount ($)</p>
+                <p className="text-3xl font-bold text-teal-600">${withdrawalAmount}</p>
+              </div>
+              <HiCurrencyDollar className="text-teal-500 text-4xl" />
+            </div>
+          </Card.Content>
+        </Card>
+        <Card className="border-l-4 border-rose-500 shadow-sm">
+          <Card.Content className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-500">Payment Total ($)</p>
+                <p className="text-3xl font-bold text-rose-600">${paymentTotal}</p>
+              </div>
+              <HiBadgeCheck className="text-rose-500 text-4xl" />
             </div>
           </Card.Content>
         </Card>
